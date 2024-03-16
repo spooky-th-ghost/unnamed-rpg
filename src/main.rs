@@ -5,6 +5,7 @@ use bevy::{
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier3d::prelude::*;
 
+mod animation;
 mod assets;
 mod camera;
 mod input;
@@ -25,6 +26,7 @@ fn main() {
             player::PlayerPlugin,
             physics::systems::PhysicsPlugin,
             assets::AssetPlugin,
+            animation::AnimationPlugin,
         ))
         .insert_state(GameState::Preload)
         .add_systems(Startup, setup)

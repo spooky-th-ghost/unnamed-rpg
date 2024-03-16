@@ -1,3 +1,4 @@
+use crate::animation::{Animated, AnimationCharacterMap, AnimationInit};
 use crate::assets::CharacterCache;
 use crate::camera::CameraData;
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
@@ -15,7 +16,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(OnEnter(GameState::Overworld), spawn_overworld_player)
             .add_systems(
                 Update,
-                (set_player_direction).run_if(in_state(GameState::Overworld)),
+                (set_player_direction, play_idle_animation).run_if(in_state(GameState::Overworld)),
             );
     }
 }
@@ -34,18 +35,8 @@ pub struct PlayerData {
     pub jump_stage: u8,
 }
 
-fn spawn_overworld_player(
-    mut commands: Commands,
-    characters: Res<CharacterCache>,
-    // mut materials: ResMut<Assets<StandardMaterial>>,
-    // mut meshes: ResMut<Assets<Mesh>>,
-) {
+fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache>) {
     commands.spawn((
-        // PbrBundle {
-        //     material: materials.add(Color::LIME_GREEN),
-        //     mesh: meshes.add(Capsule3d::new(0.5, 1.0)),
-        //     ..default()
-        // },
         SceneBundle {
             scene: characters.uli.clone_weak(),
             ..default()
@@ -59,7 +50,28 @@ fn spawn_overworld_player(
         MoveDirection::default(),
         LockedAxes::ROTATION_LOCKED,
         Speed::new(500.0),
+        Animated,
     ));
+}
+
+fn play_idle_animation(
+    mut commands: Commands,
+    animation_map: Res<AnimationCharacterMap>,
+    player_query: Query<Entity, (With<Player>, Without<AnimationInit>)>,
+    mut animation_player_query: Query<&mut AnimationPlayer>,
+    assets: Res<AssetServer>,
+) {
+    for entity in &player_query {
+        if let Some(animation_entity) = animation_map.get(entity) {
+            if let Ok(mut animation_player) = animation_player_query.get_mut(animation_entity) {
+                animation_player
+                    .play(assets.load("models/uli.glb#Animation0"))
+                    .repeat();
+
+                commands.entity(entity).insert(AnimationInit);
+            }
+        }
+    }
 }
 
 fn set_player_direction(
