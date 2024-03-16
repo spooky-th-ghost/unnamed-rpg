@@ -21,6 +21,7 @@ impl Plugin for PlayerPlugin {
                     set_player_direction,
                     play_idle_animation,
                     transition_player_state,
+                    update_player_data,
                 )
                     .run_if(in_state(GameState::Overworld)),
             );
@@ -139,6 +140,15 @@ fn handle_state_transition_events(
             });
         }
         *previous_state = player.state;
+    }
+}
+
+fn update_player_data(
+    mut player_data: ResMut<PlayerData>,
+    player_query: Query<&Transform, With<Player>>,
+) {
+    for transform in &player_query {
+        player_data.player_position = transform.translation;
     }
 }
 
