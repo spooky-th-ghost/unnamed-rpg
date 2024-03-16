@@ -1,0 +1,5 @@
+({
+	"checkerboard": StandardMaterial (
+		path: "textures/check_texture.png"
+	)
+})

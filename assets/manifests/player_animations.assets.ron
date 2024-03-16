@@ -1,0 +1,9 @@
+({
+		"idle": File(
+			path: "models/uli.glb#Animation0"
+		),
+		"run": File(
+			path: "models/uli.glb#Animation1"
+		),
+
+})
