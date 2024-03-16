@@ -12,7 +12,7 @@ impl MoveDirection {
         self.0 = value;
     }
 
-    pub fn any(&self) -> bool {
+    pub fn is_any(&self) -> bool {
         self.0 != Vec3::ZERO
     }
 }
@@ -33,3 +33,9 @@ impl Speed {
         self.0 = value;
     }
 }
+
+#[derive(Component)]
+pub struct Grounded;
+
+#[derive(Component)]
+pub struct Character;

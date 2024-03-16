@@ -1,12 +1,13 @@
-use crate::animation::{Animated, AnimationCharacterMap, AnimationInit};
-use crate::assets::CharacterCache;
+use crate::animation::{Animated, AnimationCharacterMap, AnimationInit, AnimationTransitionEvent};
+use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
-use crate::physics::types::{MoveDirection, Speed};
+use crate::physics::types::{Character, Grounded, MoveDirection, Speed};
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use leafwing_input_manager::action_state::ActionState;
+use std::time::Duration;
 
 pub struct PlayerPlugin;
 
@@ -16,13 +17,44 @@ impl Plugin for PlayerPlugin {
             .add_systems(OnEnter(GameState::Overworld), spawn_overworld_player)
             .add_systems(
                 Update,
-                (set_player_direction, play_idle_animation).run_if(in_state(GameState::Overworld)),
+                (
+                    set_player_direction,
+                    play_idle_animation,
+                    transition_player_state,
+                )
+                    .run_if(in_state(GameState::Overworld)),
             );
     }
 }
 
-#[derive(Component)]
-pub struct Player;
+#[derive(Default, Clone, Copy, PartialEq, Eq)]
+pub enum PlayerState {
+    Diving,
+    BellySliding,
+    #[default]
+    Idle,
+    Walking,
+    Running,
+    LongJumping,
+    Rising,
+    Freefall,
+    Walljumping,
+    Carrying,
+    ButtSliding,
+    Sliding,
+}
+
+#[derive(Component, Default, Clone, Copy, Deref)]
+pub struct Player {
+    #[deref]
+    pub state: PlayerState,
+}
+
+#[derive(Event)]
+pub struct PlayerStateTransitionEvent {
+    pub current_state: PlayerState,
+    pub new_state: PlayerState,
+}
 
 #[derive(Resource, Default)]
 pub struct PlayerData {
@@ -41,7 +73,10 @@ fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache
             scene: characters.uli.clone_weak(),
             ..default()
         },
-        Player,
+        Player {
+            state: PlayerState::Idle,
+        },
+        Character,
         Collider::capsule_y(0.5, 0.5),
         RigidBody::Dynamic,
         Velocity::default(),
@@ -49,7 +84,7 @@ fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache
         InputListenerBundle::input_map(),
         MoveDirection::default(),
         LockedAxes::ROTATION_LOCKED,
-        Speed::new(500.0),
+        Speed::new(200.0),
         Animated,
     ));
 }
@@ -87,6 +122,52 @@ fn set_player_direction(
             direction.set(camera_data.translate_direction_in_camera_space(x, z));
         } else {
             direction.set(Vec3::ZERO);
+        }
+    }
+}
+
+fn handle_state_transition_events(
+    mut state_events: EventWriter<PlayerStateTransitionEvent>,
+    player_query: Query<&Player>,
+    mut previous_state: Local<PlayerState>,
+) {
+    for player in &player_query {
+        if player.state != *previous_state {
+            state_events.send(PlayerStateTransitionEvent {
+                current_state: *previous_state,
+                new_state: player.state,
+            });
+        }
+        *previous_state = player.state;
+    }
+}
+
+fn transition_player_state(
+    mut animation_transitions: EventWriter<AnimationTransitionEvent>,
+    animation_cache: Res<PlayerAnimationCache>,
+    mut player_query: Query<(Entity, &mut Player, &MoveDirection, Has<Grounded>)>,
+) {
+    for (entity, mut player, direction, is_grounded) in &mut player_query {
+        if is_grounded {
+            if direction.is_any() {
+                if player.state != PlayerState::Running {
+                    player.state = PlayerState::Running;
+                    animation_transitions.send(AnimationTransitionEvent {
+                        entity,
+                        clip: animation_cache.run.clone_weak(),
+                        transition: Duration::from_secs_f32(0.2),
+                    });
+                }
+            } else {
+                if player.state != PlayerState::Idle {
+                    player.state = PlayerState::Idle;
+                    animation_transitions.send(AnimationTransitionEvent {
+                        entity,
+                        clip: animation_cache.idle.clone_weak(),
+                        transition: Duration::from_secs_f32(0.3),
+                    });
+                }
+            }
         }
     }
 }
