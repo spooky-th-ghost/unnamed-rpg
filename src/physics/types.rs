@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct MoveDirection(Vec3);
 
 impl MoveDirection {
@@ -17,7 +18,8 @@ impl MoveDirection {
     }
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct Speed(f32);
 
 impl Speed {
@@ -28,11 +30,11 @@ impl Speed {
     pub fn get(&self) -> f32 {
         self.0
     }
-
-    pub fn set(&mut self, value: f32) {
-        self.0 = value;
-    }
 }
+
+#[derive(Component, Reflect, Default)]
+#[reflect(Component)]
+pub struct MeshColliderMarker(f32);
 
 #[derive(Component)]
 pub struct Grounded;

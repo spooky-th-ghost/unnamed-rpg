@@ -2,6 +2,7 @@ use bevy::{
     math::bounding::{BoundingSphere, IntersectsVolume},
     prelude::*,
 };
+use bevy_gltf_blueprints::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier3d::prelude::*;
 
@@ -19,6 +20,8 @@ fn main() {
             DefaultPlugins,
             WorldInspectorPlugin::default(),
             RapierPhysicsPlugin::<NoUserData>::default(),
+            // Un comment when configuring colliders
+            // RapierDebugRenderPlugin::default(),
         ))
         .add_plugins((
             input::InputPlugin,
@@ -28,9 +31,12 @@ fn main() {
             assets::AssetPlugin,
             animation::AnimationPlugin,
         ))
+        .register_type::<physics::types::Speed>()
+        .register_type::<physics::types::MoveDirection>()
+        .register_type::<physics::types::MeshColliderMarker>()
         .insert_state(GameState::Preload)
         .add_systems(Startup, setup)
-        .add_systems(Update, (move_mover, detect_red_sphere))
+        .add_systems(OnEnter(GameState::Overworld), post_load_spawn)
         .run();
 }
 
@@ -69,12 +75,35 @@ fn setup(
         PbrBundle {
             mesh: meshes.add(bevy::prelude::Cuboid::new(50.0, 0.5, 50.0).mesh()),
             material: materials.add(Color::PURPLE),
-            transform: Transform::from_xyz(0.0, -2.0, 0.0),
+            transform: Transform::from_xyz(0.0, -1.0, 0.0),
             ..default()
         },
         RigidBody::Fixed,
         Collider::cuboid(50.0, 0.5, 50.0),
     ));
+}
+
+fn post_load_spawn(mut commands: Commands) {
+    for i in 1..8 {
+        let x = i as f32;
+        commands.spawn((
+            BlueprintName("Stool".to_string()),
+            TransformBundle {
+                local: Transform::from_xyz(x, 0., 0.),
+                ..default()
+            },
+            SpawnHere,
+        ));
+
+        commands.spawn((
+            BlueprintName("Streetlight".to_string()),
+            TransformBundle {
+                local: Transform::from_xyz(x, 0., -3.0),
+                ..default()
+            },
+            SpawnHere,
+        ));
+    }
 }
 
 fn move_mover(time: Res<Time>, mut mover_query: Query<&mut Transform, With<Mover>>) {
