@@ -69,25 +69,31 @@ pub struct PlayerData {
 }
 
 fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache>) {
-    commands.spawn((
-        SceneBundle {
-            scene: characters.uli.clone_weak(),
-            ..default()
-        },
-        Player {
-            state: PlayerState::Idle,
-        },
-        Character,
-        Collider::capsule_y(0.5, 0.5),
-        RigidBody::Dynamic,
-        Velocity::default(),
-        InputBuffer::default(),
-        InputListenerBundle::input_map(),
-        MoveDirection::default(),
-        LockedAxes::ROTATION_LOCKED,
-        Speed::new(200.0),
-        Animated,
-    ));
+    commands
+        .spawn((
+            SceneBundle {
+                scene: characters.uli.clone_weak(),
+                ..default()
+            },
+            Player {
+                state: PlayerState::Idle,
+            },
+            Character,
+            RigidBody::Dynamic,
+            Velocity::default(),
+            InputBuffer::default(),
+            InputListenerBundle::input_map(),
+            MoveDirection::default(),
+            LockedAxes::ROTATION_LOCKED,
+            Speed::new(200.0),
+            Animated,
+        ))
+        .with_children(|parent| {
+            parent.spawn((
+                TransformBundle::from_transform(Transform::from_translation(Vec3::Y * 0.6)),
+                Collider::capsule_y(0.4, 0.4),
+            ));
+        });
 }
 
 fn play_idle_animation(

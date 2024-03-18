@@ -61,39 +61,30 @@ fn setup(
 ) {
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Sphere::new(1.0).mesh().build()),
-            material: materials.add(Color::RED),
-            transform: Transform::from_xyz(0.0, -2.0, 0.0),
-            ..default()
-        },
-        SphereBoy,
-    ));
-
-    commands.spawn((TransformBundle::default(), Mover));
-
-    commands.spawn((
-        PbrBundle {
             mesh: meshes.add(bevy::prelude::Cuboid::new(50.0, 0.5, 50.0).mesh()),
             material: materials.add(Color::PURPLE),
-            transform: Transform::from_xyz(0.0, -1.0, 0.0),
+            transform: Transform::from_xyz(0.0, -0.25, 0.0),
             ..default()
         },
         RigidBody::Fixed,
-        Collider::cuboid(50.0, 0.5, 50.0),
+        Collider::cuboid(25.0, 0.25, 25.0),
     ));
+
+    commands.spawn(PointLightBundle {
+        point_light: PointLight {
+            intensity: 5000.0,
+            radius: 300.0,
+            ..default()
+        },
+
+        transform: Transform::from_xyz(0.0, 5.0, 0.0),
+        ..default()
+    });
 }
 
 fn post_load_spawn(mut commands: Commands) {
     for i in 1..8 {
         let x = i as f32;
-        commands.spawn((
-            BlueprintName("Stool".to_string()),
-            TransformBundle {
-                local: Transform::from_xyz(x, 0., 0.),
-                ..default()
-            },
-            SpawnHere,
-        ));
 
         commands.spawn((
             BlueprintName("Streetlight".to_string()),
