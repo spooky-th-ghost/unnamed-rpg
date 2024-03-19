@@ -95,6 +95,15 @@ fn post_load_spawn(mut commands: Commands) {
             SpawnHere,
         ));
     }
+
+    commands.spawn((
+        BlueprintName("Dumpster".to_string()),
+        TransformBundle {
+            local: Transform::from_xyz(0.0, 0., 10.0),
+            ..default()
+        },
+        SpawnHere,
+    ));
 }
 
 fn move_mover(time: Res<Time>, mut mover_query: Query<&mut Transform, With<Mover>>) {

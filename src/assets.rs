@@ -81,8 +81,7 @@ fn insert_mesh_colliders(
                     if let Some(collider) =
                         Collider::from_bevy_mesh(&mesh, &ComputedColliderShape::TriMesh)
                     {
-                        let mut child_entity = commands.entity(child);
-                        child_entity.insert(collider).insert(RigidBody::Fixed);
+                        commands.entity(child).insert(collider);
                         commands.entity(entity).remove::<MeshColliderMarker>();
                     }
                 }

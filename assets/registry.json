@@ -6909,25 +6909,6 @@
       "type": "object",
       "typeInfo": "Struct"
     },
-    "bevy_rapier3d::render::DebugRenderContext": {
-      "additionalProperties": false,
-      "isComponent": false,
-      "isResource": true,
-      "properties": {
-        "enabled": {
-          "type": {
-            "$ref": "#/$defs/bool"
-          }
-        }
-      },
-      "required": [
-        "enabled"
-      ],
-      "short_name": "DebugRenderContext",
-      "title": "bevy_rapier3d::render::DebugRenderContext",
-      "type": "object",
-      "typeInfo": "Struct"
-    },
     "bevy_render::camera::camera::Camera": {
       "additionalProperties": false,
       "isComponent": true,
