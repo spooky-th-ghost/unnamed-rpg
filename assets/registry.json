@@ -12772,6 +12772,48 @@
       "type": "uint",
       "typeInfo": "Value"
     },
+    "unnamed_rpg::animation::Animated": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": false,
+      "properties": {},
+      "required": [],
+      "short_name": "Animated",
+      "title": "unnamed_rpg::animation::Animated",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "unnamed_rpg::environment::ChestStatus": {
+      "isComponent": false,
+      "isResource": false,
+      "oneOf": [
+        "Open",
+        "Closed"
+      ],
+      "short_name": "ChestStatus",
+      "title": "unnamed_rpg::environment::ChestStatus",
+      "type": "string",
+      "typeInfo": "Enum"
+    },
+    "unnamed_rpg::environment::Dumpster": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {
+        "status": {
+          "type": {
+            "$ref": "#/$defs/unnamed_rpg::environment::ChestStatus"
+          }
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "short_name": "Dumpster",
+      "title": "unnamed_rpg::environment::Dumpster",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "unnamed_rpg::physics::types::MeshColliderMarker": {
       "isComponent": true,
       "isResource": false,

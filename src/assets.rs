@@ -30,10 +30,14 @@ impl Plugin for AssetPlugin {
                     "manifests/player_animations.assets.ron",
                 )
                 .with_dynamic_assets_file::<StandardDynamicAssetCollection>(
+                    "manifests/environmental_animation.assets.ron",
+                )
+                .with_dynamic_assets_file::<StandardDynamicAssetCollection>(
                     "manifests/materials.assets.ron",
                 )
                 .load_collection::<CharacterCache>()
                 .load_collection::<PlayerAnimationCache>()
+                .load_collection::<EnvironmentalAnimationCache>()
                 .load_collection::<MaterialCache>()
                 .load_collection::<BlueprintCache>(),
         )
@@ -57,6 +61,16 @@ pub struct MaterialCache {
 pub struct CharacterCache {
     #[asset(key = "uli")]
     pub uli: Handle<Scene>,
+}
+
+#[derive(Resource, AssetCollection)]
+pub struct EnvironmentalAnimationCache {
+    #[asset(key = "dumpster_closed")]
+    pub dumpster_closed: Handle<AnimationClip>,
+    #[asset(key = "dumpster_opening")]
+    pub dumpster_opening: Handle<AnimationClip>,
+    #[asset(key = "dumpster_open")]
+    pub dumpster_open: Handle<AnimationClip>,
 }
 
 #[derive(Resource, AssetCollection)]

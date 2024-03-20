@@ -1,4 +1,4 @@
-use crate::animation::{Animated, AnimationCharacterMap, AnimationInit, AnimationTransitionEvent};
+use crate::animation::{Animated, AnimationInit, AnimationMap, AnimationTransitionEvent};
 use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
@@ -98,7 +98,7 @@ fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache
 
 fn play_idle_animation(
     mut commands: Commands,
-    animation_map: Res<AnimationCharacterMap>,
+    animation_map: Res<AnimationMap>,
     player_query: Query<Entity, (With<Player>, Without<AnimationInit>)>,
     mut animation_player_query: Query<&mut AnimationPlayer>,
     assets: Res<AssetServer>,

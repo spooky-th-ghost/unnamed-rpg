@@ -5,16 +5,16 @@ use bevy::utils::HashMap;
 
 use crate::GameState;
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub struct Animated;
 
 #[derive(Component)]
 pub struct AnimationInit;
 
 #[derive(Resource, Default)]
-pub struct AnimationCharacterMap(HashMap<Entity, Entity>);
+pub struct AnimationMap(HashMap<Entity, Entity>);
 
-impl AnimationCharacterMap {
+impl AnimationMap {
     pub fn get(&self, key_entity: Entity) -> Option<Entity> {
         self.0.get(&key_entity).copied()
     }
@@ -33,7 +33,7 @@ pub struct AnimationTransitionEvent {
 
 fn store_animation_relationships(
     mut commands: Commands,
-    mut animation_character_map: ResMut<AnimationCharacterMap>,
+    mut animation_map: ResMut<AnimationMap>,
     child_query: Query<(Entity, &Parent), Added<AnimationPlayer>>,
     grandparent_query: Query<(Entity, &Children), With<Animated>>,
 ) {
@@ -43,7 +43,7 @@ fn store_animation_relationships(
                 .into_iter()
                 .any(|entity| *entity == grandchild_parent.get())
             {
-                animation_character_map.insert(grandparent_entity, grandchild_entity);
+                animation_map.insert(grandparent_entity, grandchild_entity);
                 commands.entity(grandparent_entity).remove::<Animated>();
             }
         }
@@ -53,7 +53,7 @@ fn store_animation_relationships(
 fn handle_animation_transition_events(
     mut transition_events: EventReader<AnimationTransitionEvent>,
     mut animation_player_query: Query<&mut AnimationPlayer>,
-    animation_character_map: Res<AnimationCharacterMap>,
+    animation_character_map: Res<AnimationMap>,
 ) {
     for event in transition_events.read() {
         if let Some(animation_player_entity) = animation_character_map.get(event.entity) {
@@ -71,7 +71,7 @@ pub struct AnimationPlugin;
 
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(AnimationCharacterMap::default())
+        app.insert_resource(AnimationMap::default())
             .add_event::<AnimationTransitionEvent>()
             .add_systems(
                 Update,

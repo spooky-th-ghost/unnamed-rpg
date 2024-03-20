@@ -1,0 +1,11 @@
+({
+		"dumpster_closed": File(
+			path: "scenes/library/Dumpster.glb#Animation1"
+		),
+		"dumpster_opening": File(
+			path: "scenes/library/Dumpster.glb#Animation2"
+		),
+		"dumpster_open": File(
+			path: "scenes/library/Dumpster.glb#Animation3"
+		),
+})

@@ -9,6 +9,7 @@ use bevy_rapier3d::prelude::*;
 mod animation;
 mod assets;
 mod camera;
+mod environment;
 mod input;
 mod physics;
 mod player;
@@ -34,6 +35,9 @@ fn main() {
         .register_type::<physics::types::Speed>()
         .register_type::<physics::types::MoveDirection>()
         .register_type::<physics::types::MeshColliderMarker>()
+        .register_type::<environment::Dumpster>()
+        .register_type::<environment::ChestStatus>()
+        .register_type::<animation::Animated>()
         .insert_state(GameState::Preload)
         .add_systems(Startup, setup)
         .add_systems(OnEnter(GameState::Overworld), post_load_spawn)
