@@ -6,6 +6,7 @@ use bevy::utils::HashMap;
 use crate::GameState;
 
 #[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct Animated;
 
 #[derive(Component)]

@@ -1,5 +1,15 @@
 use bevy::prelude::*;
 
+pub struct PhysicsTypesPlugin;
+
+impl Plugin for PhysicsTypesPlugin {
+    fn build(&self, app: &mut App) {
+        app.register_type::<Speed>()
+            .register_type::<MoveDirection>()
+            .register_type::<MeshColliderMarker>();
+    }
+}
+
 #[derive(Component, Default, Reflect)]
 #[reflect(Component)]
 pub struct MoveDirection(Vec3);

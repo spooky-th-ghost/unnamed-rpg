@@ -12774,7 +12774,7 @@
     },
     "unnamed_rpg::animation::Animated": {
       "additionalProperties": false,
-      "isComponent": false,
+      "isComponent": true,
       "isResource": false,
       "properties": {},
       "required": [],
@@ -12783,34 +12783,47 @@
       "type": "object",
       "typeInfo": "Struct"
     },
-    "unnamed_rpg::environment::ChestStatus": {
-      "isComponent": false,
+    "unnamed_rpg::environment::Closed": {
+      "additionalProperties": false,
+      "isComponent": true,
       "isResource": false,
-      "oneOf": [
-        "Open",
-        "Closed"
-      ],
-      "short_name": "ChestStatus",
-      "title": "unnamed_rpg::environment::ChestStatus",
-      "type": "string",
-      "typeInfo": "Enum"
+      "properties": {},
+      "required": [],
+      "short_name": "Closed",
+      "title": "unnamed_rpg::environment::Closed",
+      "type": "object",
+      "typeInfo": "Struct"
     },
     "unnamed_rpg::environment::Dumpster": {
       "additionalProperties": false,
       "isComponent": true,
       "isResource": false,
-      "properties": {
-        "status": {
-          "type": {
-            "$ref": "#/$defs/unnamed_rpg::environment::ChestStatus"
-          }
-        }
-      },
-      "required": [
-        "status"
-      ],
+      "properties": {},
+      "required": [],
       "short_name": "Dumpster",
       "title": "unnamed_rpg::environment::Dumpster",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "unnamed_rpg::environment::Open": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {},
+      "required": [],
+      "short_name": "Open",
+      "title": "unnamed_rpg::environment::Open",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "unnamed_rpg::environment::Openable": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {},
+      "required": [],
+      "short_name": "Openable",
+      "title": "unnamed_rpg::environment::Openable",
       "type": "object",
       "typeInfo": "Struct"
     },

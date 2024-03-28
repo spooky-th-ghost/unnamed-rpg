@@ -3,9 +3,9 @@ use crate::GameState;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
-pub struct PhysicsPlugin;
+pub struct PhysicsSystemPlugin;
 
-impl Plugin for PhysicsPlugin {
+impl Plugin for PhysicsSystemPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,

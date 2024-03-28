@@ -28,15 +28,11 @@ fn main() {
             input::InputPlugin,
             camera::CameraPlugin,
             player::PlayerPlugin,
-            physics::systems::PhysicsPlugin,
+            physics::PhysicsPlugin,
             assets::AssetPlugin,
             animation::AnimationPlugin,
+            environment::EnvironmentPlugin,
         ))
-        .register_type::<physics::types::Speed>()
-        .register_type::<physics::types::MoveDirection>()
-        .register_type::<physics::types::MeshColliderMarker>()
-        .register_type::<environment::Dumpster>()
-        .register_type::<environment::ChestStatus>()
         .register_type::<animation::Animated>()
         .insert_state(GameState::Preload)
         .add_systems(Startup, setup)
