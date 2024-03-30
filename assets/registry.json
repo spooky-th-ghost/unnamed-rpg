@@ -12783,6 +12783,52 @@
       "type": "object",
       "typeInfo": "Struct"
     },
+    "unnamed_rpg::environment::Chest": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {
+        "contents": {
+          "type": {
+            "$ref": "#/$defs/unnamed_rpg::environment::ChestContents"
+          }
+        }
+      },
+      "required": [
+        "contents"
+      ],
+      "short_name": "Chest",
+      "title": "unnamed_rpg::environment::Chest",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "unnamed_rpg::environment::ChestContents": {
+      "isComponent": false,
+      "isResource": false,
+      "oneOf": [
+        {
+          "items": false,
+          "prefixItems": [
+            {
+              "type": {
+                "$ref": "#/$defs/f32"
+              }
+            }
+          ],
+          "short_name": "Money",
+          "title": "Money",
+          "type": "array",
+          "typeInfo": "Tuple"
+        },
+        {
+          "title": "Nothing"
+        }
+      ],
+      "short_name": "ChestContents",
+      "title": "unnamed_rpg::environment::ChestContents",
+      "type": "object",
+      "typeInfo": "Enum"
+    },
     "unnamed_rpg::environment::Closed": {
       "additionalProperties": false,
       "isComponent": true,
@@ -12791,6 +12837,17 @@
       "required": [],
       "short_name": "Closed",
       "title": "unnamed_rpg::environment::Closed",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "unnamed_rpg::environment::Door": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {},
+      "required": [],
+      "short_name": "Door",
+      "title": "unnamed_rpg::environment::Door",
       "type": "object",
       "typeInfo": "Struct"
     },
