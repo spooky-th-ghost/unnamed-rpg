@@ -6,6 +6,7 @@ impl Plugin for PhysicsTypesPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Speed>()
             .register_type::<MoveDirection>()
+            .register_type::<Grounded>()
             .register_type::<MeshColliderMarker>();
     }
 }
@@ -46,8 +47,12 @@ impl Speed {
 #[reflect(Component)]
 pub struct MeshColliderMarker(f32);
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct Grounded;
 
 #[derive(Component)]
 pub struct Character;
+
+#[derive(Component)]
+pub struct GroundSensor;

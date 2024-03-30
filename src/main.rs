@@ -33,6 +33,10 @@ fn main() {
             animation::AnimationPlugin,
             environment::EnvironmentPlugin,
         ))
+        .insert_resource(AmbientLight {
+            color: Color::WHITE,
+            brightness: 50.0,
+        })
         .register_type::<animation::Animated>()
         .insert_state(GameState::Preload)
         .add_systems(Startup, setup)
@@ -70,10 +74,11 @@ fn setup(
         Collider::cuboid(25.0, 0.25, 25.0),
     ));
 
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
-            intensity: 5000.0,
-            radius: 300.0,
+    commands.spawn(DirectionalLightBundle {
+        directional_light: DirectionalLight {
+            color: Color::ORANGE,
+            illuminance: 5000.0,
+            shadows_enabled: true,
             ..default()
         },
 

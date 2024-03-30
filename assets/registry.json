@@ -12884,6 +12884,17 @@
       "type": "object",
       "typeInfo": "Struct"
     },
+    "unnamed_rpg::physics::types::Grounded": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {},
+      "required": [],
+      "short_name": "Grounded",
+      "title": "unnamed_rpg::physics::types::Grounded",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "unnamed_rpg::physics::types::MeshColliderMarker": {
       "isComponent": true,
       "isResource": false,

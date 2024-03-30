@@ -2,7 +2,7 @@ use crate::animation::{Animated, AnimationInit, AnimationMap, AnimationTransitio
 use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
-use crate::physics::types::{Character, Grounded, MoveDirection, Speed};
+use crate::physics::types::{Character, GroundSensor, Grounded, MoveDirection, Speed};
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
@@ -22,6 +22,7 @@ impl Plugin for PlayerPlugin {
                     play_idle_animation,
                     transition_player_state,
                     update_player_data,
+                    jump,
                 )
                     .run_if(in_state(GameState::Overworld)),
             );
@@ -71,6 +72,7 @@ pub struct PlayerData {
 fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache>) {
     commands
         .spawn((
+            Name::from("Player"),
             SceneBundle {
                 scene: characters.uli.clone_weak(),
                 ..default()
@@ -87,6 +89,7 @@ fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache
             LockedAxes::ROTATION_LOCKED,
             Speed::new(200.0),
             Animated,
+            GroundSensor,
         ))
         .with_children(|parent| {
             parent.spawn((
@@ -184,6 +187,15 @@ fn transition_player_state(
                     });
                 }
             }
+        }
+    }
+}
+
+fn jump(mut player_query: Query<(&mut Velocity, &InputBuffer), With<Grounded>>) {
+    for (mut velocity, action) in &mut player_query {
+        if action.pressed(PlayerAction::Jump) {
+            println!("JUMP");
+            velocity.linvel.y = 5.0;
         }
     }
 }

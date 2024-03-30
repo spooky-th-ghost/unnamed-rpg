@@ -9,7 +9,12 @@ impl Plugin for PhysicsSystemPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (move_to_target, handle_grounded, rotate_to_direction)
+            (
+                move_to_target,
+                handle_grounded,
+                rotate_to_direction,
+                detect_ground,
+            )
                 .run_if(in_state(GameState::Overworld)),
         );
     }
@@ -64,6 +69,32 @@ fn rotate_to_direction(
             transform.rotation = transform
                 .rotation
                 .slerp(rotation_target.rotation, time.delta_seconds() * turn_speed);
+        }
+    }
+}
+
+fn detect_ground(
+    mut commands: Commands,
+    rapier_context: Res<RapierContext>,
+    query: Query<(Entity, &Transform, Has<Grounded>), With<GroundSensor>>,
+) {
+    for (entity, transform, is_grounded) in &query {
+        let max_toi = 1.2;
+
+        if let Some(_) = rapier_context.cast_ray(
+            transform.translation,
+            Vec3::NEG_Y,
+            max_toi,
+            false,
+            QueryFilter::exclude_dynamic(),
+        ) {
+            if !is_grounded {
+                commands.entity(entity).insert(Grounded);
+            }
+        } else {
+            if is_grounded {
+                commands.entity(entity).remove::<Grounded>();
+            }
         }
     }
 }
