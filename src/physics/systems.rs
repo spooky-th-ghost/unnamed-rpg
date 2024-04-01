@@ -16,11 +16,11 @@ impl Plugin for PhysicsSystemPlugin {
 
 fn move_to_target(
     time: Res<Time>,
-    mut query: Query<(&mut LinearVelocity, &Speed, &MoveDirection)>,
+    mut query: Query<(&mut LinearVelocity, &Transform, &Speed, &MoveDirection)>,
 ) {
-    for (mut velocity, speed, direction) in &mut query {
+    for (mut velocity, transform, speed, direction) in &mut query {
         if direction.is_any() {
-            let desired_velocity = direction.get() * time.delta_seconds() * speed.get();
+            let desired_velocity = time.delta_seconds() * speed.get() * *transform.forward();
             velocity.x = desired_velocity.x;
             velocity.z = desired_velocity.z;
         }
