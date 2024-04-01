@@ -2,10 +2,10 @@ use crate::animation::{Animated, AnimationInit, AnimationMap, AnimationTransitio
 use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
-use crate::physics::types::{Character, GroundSensor, Grounded, MoveDirection, Speed};
+use crate::physics::types::{Character, Grounded, Momentum, MoveDirection, Speed};
 use crate::GameState;
 use bevy::prelude::*;
-use bevy_rapier3d::prelude::*;
+use bevy_xpbd_3d::{math::*, prelude::*, PhysicsSchedule, PhysicsStepSet};
 use leafwing_input_manager::action_state::ActionState;
 use std::time::Duration;
 
@@ -70,33 +70,36 @@ pub struct PlayerData {
 }
 
 fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache>) {
-    commands
-        .spawn((
-            Name::from("Player"),
-            SceneBundle {
-                scene: characters.uli.clone_weak(),
-                ..default()
-            },
-            Player {
-                state: PlayerState::Idle,
-            },
-            Character,
-            RigidBody::Dynamic,
-            Velocity::default(),
-            InputBuffer::default(),
-            InputListenerBundle::input_map(),
-            MoveDirection::default(),
-            LockedAxes::ROTATION_LOCKED,
-            Speed::new(200.0),
-            Animated,
-            GroundSensor,
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                TransformBundle::from_transform(Transform::from_translation(Vec3::Y * 0.6)),
-                Collider::capsule_y(0.4, 0.4),
-            ));
-        });
+    commands.spawn((
+        Name::from("Player"),
+        SceneBundle {
+            scene: characters.uli.clone_weak(),
+            ..default()
+        },
+        Player {
+            state: PlayerState::Idle,
+        },
+        Character,
+        RigidBody::Dynamic,
+        InputBuffer::default(),
+        InputListenerBundle::input_map(),
+        MoveDirection::default(),
+        LockedAxes::ROTATION_LOCKED,
+        Collider::capsule(0.9, 0.4),
+        ShapeCaster::new(
+            Collider::capsule(0.9, 0.35),
+            Vec3::NEG_Y * 0.05,
+            Quaternion::default(),
+            Direction3d::NEG_Y,
+        )
+        .with_max_time_of_impact(0.2)
+        .with_max_hits(1)
+        .with_ignore_self(true),
+        GravityScale(2.0),
+        Speed::new(200.0),
+        Momentum::default(),
+        Animated,
+    ));
 }
 
 fn play_idle_animation(
@@ -110,7 +113,7 @@ fn play_idle_animation(
         if let Some(animation_entity) = animation_map.get(entity) {
             if let Ok(mut animation_player) = animation_player_query.get_mut(animation_entity) {
                 animation_player
-                    .play(assets.load("models/uli.glb#Animation0"))
+                    .play(assets.load("models/uli.glb#Animation1"))
                     .repeat();
 
                 commands.entity(entity).insert(AnimationInit);
@@ -136,22 +139,6 @@ fn set_player_direction(
     }
 }
 
-fn handle_state_transition_events(
-    mut state_events: EventWriter<PlayerStateTransitionEvent>,
-    player_query: Query<&Player>,
-    mut previous_state: Local<PlayerState>,
-) {
-    for player in &player_query {
-        if player.state != *previous_state {
-            state_events.send(PlayerStateTransitionEvent {
-                current_state: *previous_state,
-                new_state: player.state,
-            });
-        }
-        *previous_state = player.state;
-    }
-}
-
 fn update_player_data(
     mut player_data: ResMut<PlayerData>,
     player_query: Query<&Transform, With<Player>>,
@@ -164,10 +151,10 @@ fn update_player_data(
 fn transition_player_state(
     mut animation_transitions: EventWriter<AnimationTransitionEvent>,
     animation_cache: Res<PlayerAnimationCache>,
-    mut player_query: Query<(Entity, &mut Player, &MoveDirection, Has<Grounded>)>,
+    mut player_query: Query<(Entity, &mut Player, &MoveDirection, &ShapeHits)>,
 ) {
-    for (entity, mut player, direction, is_grounded) in &mut player_query {
-        if is_grounded {
+    for (entity, mut player, direction, ground_hits) in &mut player_query {
+        if !ground_hits.is_empty() {
             if direction.is_any() {
                 if player.state != PlayerState::Running {
                     player.state = PlayerState::Running;
@@ -191,11 +178,10 @@ fn transition_player_state(
     }
 }
 
-fn jump(mut player_query: Query<(&mut Velocity, &InputBuffer), With<Grounded>>) {
-    for (mut velocity, action) in &mut player_query {
-        if action.pressed(PlayerAction::Jump) {
-            println!("JUMP");
-            velocity.linvel.y = 5.0;
+fn jump(mut player_query: Query<(&mut LinearVelocity, &InputBuffer, &ShapeHits)>) {
+    for (mut velocity, action, ground_hits) in &mut player_query {
+        if action.pressed(PlayerAction::Jump) && !ground_hits.is_empty() {
+            velocity.y += 4.0;
         }
     }
 }

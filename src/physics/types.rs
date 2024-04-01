@@ -31,6 +31,24 @@ impl MoveDirection {
 
 #[derive(Component, Default, Reflect)]
 #[reflect(Component)]
+pub struct Momentum(Vec3);
+
+impl Momentum {
+    pub fn get(&self) -> Vec3 {
+        self.0
+    }
+
+    pub fn set(&mut self, value: Vec3) {
+        self.0 = value;
+    }
+
+    pub fn is_any(&self) -> bool {
+        self.0 != Vec3::ZERO
+    }
+}
+
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct Speed(f32);
 
 impl Speed {

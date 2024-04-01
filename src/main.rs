@@ -3,8 +3,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_gltf_blueprints::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_rapier3d::prelude::*;
+use bevy_xpbd_3d::prelude::*;
 
 mod animation;
 mod assets;
@@ -16,32 +15,42 @@ mod player;
 mod types;
 
 fn main() {
-    App::new()
-        .add_plugins((
-            DefaultPlugins,
-            WorldInspectorPlugin::default(),
-            RapierPhysicsPlugin::<NoUserData>::default(),
-            // Un comment when configuring colliders
-            // RapierDebugRenderPlugin::default(),
-        ))
-        .add_plugins((
-            input::InputPlugin,
-            camera::CameraPlugin,
-            player::PlayerPlugin,
-            physics::PhysicsPlugin,
-            assets::AssetPlugin,
-            animation::AnimationPlugin,
-            environment::EnvironmentPlugin,
-        ))
-        .insert_resource(AmbientLight {
-            color: Color::WHITE,
-            brightness: 50.0,
-        })
-        .register_type::<animation::Animated>()
-        .insert_state(GameState::Preload)
-        .add_systems(Startup, setup)
-        .add_systems(OnEnter(GameState::Overworld), post_load_spawn)
-        .run();
+    let mut app = App::new();
+    app.add_plugins((
+        DefaultPlugins,
+        bevy_xpbd_3d::prelude::PhysicsPlugins::default(),
+    ))
+    .add_plugins((
+        input::InputPlugin,
+        camera::CameraPlugin,
+        player::PlayerPlugin,
+        physics::PhysicsPlugin,
+        assets::AssetPlugin,
+        animation::AnimationPlugin,
+        environment::EnvironmentPlugin,
+    ))
+    .insert_resource(AmbientLight {
+        color: Color::WHITE,
+        brightness: 50.0,
+    })
+    .register_type::<animation::Animated>()
+    .insert_state(GameState::Preload)
+    .add_systems(Startup, setup)
+    .add_systems(OnEnter(GameState::Overworld), post_load_spawn);
+
+    #[cfg(feature = "debug-render")]
+    {
+        println!("Debug Renderer eneabled");
+        app.add_plugins(bevy_xpbd_3d::prelude::PhysicsDebugPlugin::default());
+    }
+    #[cfg(feature = "inspector")]
+    {
+        use bevy_inspector_egui::quick::WorldInspectorPlugin;
+        println!("Inpsector Enabled");
+        app.add_plugins(WorldInspectorPlugin::default());
+    }
+
+    app.run();
 }
 
 #[derive(States, Clone, Copy, Default, Eq, PartialEq, Hash, Debug)]
@@ -70,8 +79,8 @@ fn setup(
             transform: Transform::from_xyz(0.0, -0.25, 0.0),
             ..default()
         },
-        RigidBody::Fixed,
-        Collider::cuboid(25.0, 0.25, 25.0),
+        RigidBody::Static,
+        Collider::cuboid(50.0, 0.5, 50.0),
     ));
 
     commands.spawn(DirectionalLightBundle {
