@@ -4,7 +4,7 @@ use bevy::{
 };
 use bevy_gltf_blueprints::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_rapier3d::prelude::*;
+use bevy_xpbd_3d::prelude::*;
 
 mod animation;
 mod assets;
@@ -20,9 +20,8 @@ fn main() {
         .add_plugins((
             DefaultPlugins,
             WorldInspectorPlugin::default(),
-            RapierPhysicsPlugin::<NoUserData>::default(),
-            // Un comment when configuring colliders
-            // RapierDebugRenderPlugin::default(),
+            bevy_xpbd_3d::prelude::PhysicsPlugins::default(), // Un comment when configuring colliders
+                                                              // RapierDebugRenderPlugin::default(),
         ))
         .add_plugins((
             input::InputPlugin,
@@ -70,7 +69,7 @@ fn setup(
             transform: Transform::from_xyz(0.0, -0.25, 0.0),
             ..default()
         },
-        RigidBody::Fixed,
+        RigidBody::Static,
         Collider::cuboid(25.0, 0.25, 25.0),
     ));
 

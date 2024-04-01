@@ -2,8 +2,8 @@ use crate::physics::types::MeshColliderMarker;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_gltf_blueprints::{BlueprintsPlugin, GltfFormat};
-use bevy_rapier3d::prelude::*;
 use bevy_registry_export::*;
+use bevy_xpbd_3d::prelude::*;
 
 use crate::GameState;
 
@@ -92,9 +92,7 @@ fn insert_mesh_colliders(
         for child in children.iter_descendants(entity) {
             if let Ok(mesh_handle) = mesh_query.get(child) {
                 if let Some(mesh) = meshes.get(mesh_handle) {
-                    if let Some(collider) =
-                        Collider::from_bevy_mesh(&mesh, &ComputedColliderShape::TriMesh)
-                    {
+                    if let Some(collider) = Collider::trimesh_from_mesh(&mesh) {
                         commands.entity(child).insert(collider);
                         commands.entity(entity).remove::<MeshColliderMarker>();
                     }
