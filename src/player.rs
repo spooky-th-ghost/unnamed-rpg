@@ -85,7 +85,7 @@ fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache
         InputListenerBundle::input_map(),
         MoveDirection::default(),
         LockedAxes::ROTATION_LOCKED,
-        Collider::capsule(0.4, 0.4),
+        Collider::capsule(0.9, 0.4),
         ShapeCaster::new(
             Collider::capsule(0.9, 0.35),
             Vec3::NEG_Y * 0.05,
@@ -136,22 +136,6 @@ fn set_player_direction(
         } else {
             direction.set(Vec3::ZERO);
         }
-    }
-}
-
-fn handle_state_transition_events(
-    mut state_events: EventWriter<PlayerStateTransitionEvent>,
-    player_query: Query<&Player>,
-    mut previous_state: Local<PlayerState>,
-) {
-    for player in &player_query {
-        if player.state != *previous_state {
-            state_events.send(PlayerStateTransitionEvent {
-                current_state: *previous_state,
-                new_state: player.state,
-            });
-        }
-        *previous_state = player.state;
     }
 }
 
