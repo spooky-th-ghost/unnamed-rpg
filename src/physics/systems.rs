@@ -29,22 +29,24 @@ fn move_to_target(
 
 fn rotate_to_direction(
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &MoveDirection, &Speed), (With<Character>, With<Grounded>)>,
+    mut query: Query<(&mut Transform, &MoveDirection, &Speed, &ShapeHits), With<Character>>,
     mut rotation_target: Local<Transform>,
 ) {
-    for (mut transform, direction, speed) in &mut query {
-        rotation_target.translation = transform.translation;
-        let dir = direction.get();
-        let flat_velo_direction = Vec3::new(dir.x, 0.0, dir.z).normalize_or_zero();
-        if flat_velo_direction != Vec3::ZERO {
-            let target_position = rotation_target.translation + flat_velo_direction;
+    for (mut transform, direction, speed, ground_hits) in &mut query {
+        if !ground_hits.is_empty() {
+            rotation_target.translation = transform.translation;
+            let dir = direction.get();
+            let flat_velo_direction = Vec3::new(dir.x, 0.0, dir.z).normalize_or_zero();
+            if flat_velo_direction != Vec3::ZERO {
+                let target_position = rotation_target.translation + flat_velo_direction;
 
-            rotation_target.look_at(target_position, Vec3::Y);
-            let turn_speed = speed.get() * 0.085;
+                rotation_target.look_at(target_position, Vec3::Y);
+                let turn_speed = speed.get() * 0.085;
 
-            transform.rotation = transform
-                .rotation
-                .slerp(rotation_target.rotation, time.delta_seconds() * turn_speed);
+                transform.rotation = transform
+                    .rotation
+                    .slerp(rotation_target.rotation, time.delta_seconds() * turn_speed);
+            }
         }
     }
 }
