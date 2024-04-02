@@ -2,7 +2,9 @@ use crate::animation::{Animated, AnimationInit, AnimationMap, AnimationTransitio
 use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
-use crate::physics::types::{Character, Grounded, Momentum, MoveDirection, Speed};
+use crate::physics::types::{
+    Character, CharacterBundle, Jumping, Momentum, MoveDirection, Regrab, Speed,
+};
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_xpbd_3d::{math::*, prelude::*, PhysicsSchedule, PhysicsStepSet};
@@ -23,6 +25,8 @@ impl Plugin for PlayerPlugin {
                     transition_player_state,
                     update_player_data,
                     jump,
+                    handle_regrab,
+                    handle_jumping,
                 )
                     .run_if(in_state(GameState::Overworld)),
             );
@@ -79,23 +83,24 @@ fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache
         Player {
             state: PlayerState::Idle,
         },
-        Character,
-        RigidBody::Dynamic,
+        CharacterBundle::default(),
+        // Character::default(),
+        // RigidBody::Dynamic,
         InputBuffer::default(),
         InputListenerBundle::input_map(),
         MoveDirection::default(),
-        LockedAxes::ROTATION_LOCKED,
-        Collider::capsule(0.9, 0.4),
-        ShapeCaster::new(
-            Collider::capsule(0.9, 0.35),
-            Vec3::NEG_Y * 0.05,
-            Quaternion::default(),
-            Direction3d::NEG_Y,
-        )
-        .with_max_time_of_impact(0.2)
-        .with_max_hits(1)
-        .with_ignore_self(true),
-        GravityScale(2.0),
+        // LockedAxes::ROTATION_LOCKED,
+        // Collider::capsule(0.9, 0.4),
+        // ShapeCaster::new(
+        //     Collider::capsule(0.9, 0.35),
+        //     Vec3::NEG_Y * 0.05,
+        //     Quaternion::default(),
+        //     Direction3d::NEG_Y,
+        // )
+        // .with_max_time_of_impact(0.2)
+        // .with_max_hits(1)
+        // .with_ignore_self(true),
+        // GravityScale(2.0),
         Speed::new(200.0),
         Momentum::default(),
         Animated,
@@ -178,10 +183,59 @@ fn transition_player_state(
     }
 }
 
-fn jump(mut player_query: Query<(&mut LinearVelocity, &InputBuffer, &ShapeHits)>) {
-    for (mut velocity, action, ground_hits) in &mut player_query {
-        if action.pressed(PlayerAction::Jump) && !ground_hits.is_empty() {
-            velocity.y += 4.0;
+fn handle_jumping(
+    mut commands: Commands,
+    input: Res<ButtonInput<KeyCode>>,
+    mut character_query: Query<(Entity, &mut LinearVelocity), With<Jumping>>,
+) {
+    for (entity, mut velocity) in &mut character_query {
+        if input.just_released(KeyCode::Space) || velocity.y <= 0.0 {
+            commands.entity(entity).remove::<Jumping>();
+            velocity.y = 0.0;
+        }
+    }
+}
+
+fn jump(
+    mut commands: Commands,
+    input: Res<ButtonInput<KeyCode>>,
+    mut character_query: Query<(Entity, &mut LinearVelocity, &ShapeHits, &Character)>,
+) {
+    for (entity, mut velocity, ground_hits, character) in &mut character_query {
+        if !ground_hits.is_empty() && input.just_pressed(KeyCode::Space) {
+            velocity.y = character.jump_strength;
+            commands.entity(entity).insert(Jumping);
+        }
+    }
+}
+
+fn handle_regrab(
+    mut commands: Commands,
+    input: Res<ButtonInput<KeyCode>>,
+    mut character_query: Query<(
+        Entity,
+        &mut GravityScale,
+        &ShapeHits,
+        &Character,
+        Has<Regrab>,
+        Has<Jumping>,
+    )>,
+) {
+    for (entity, mut gravity_scale, ground_hits, character, is_regrabbing, is_jumping) in
+        &mut character_query
+    {
+        if (!ground_hits.is_empty() || input.just_released(KeyCode::Space)) && is_regrabbing {
+            commands.entity(entity).remove::<Regrab>();
+            gravity_scale.0 = character.base_gravity_scale;
+        }
+
+        if input.just_pressed(KeyCode::Space)
+            && ground_hits.is_empty()
+            && !is_jumping
+            && !is_regrabbing
+        {
+            commands.entity(entity).insert(Regrab);
+            gravity_scale.0 = character.regrab_gravity_scale;
         }
     }
 }
