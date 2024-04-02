@@ -9,7 +9,12 @@ impl Plugin for PhysicsSystemPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (move_to_target, rotate_to_direction, floating_capsule)
+            (
+                move_to_target,
+                rotate_to_direction,
+                floating_capsule,
+                lateral_damping,
+            )
                 .run_if(in_state(GameState::Overworld)),
         );
     }
@@ -25,6 +30,15 @@ fn move_to_target(
             velocity.x = desired_velocity.x;
             velocity.z = desired_velocity.z;
         }
+    }
+}
+
+fn lateral_damping(time: Res<Time>, mut query: Query<(&mut LinearVelocity, &LateralDamping)>) {
+    for (mut velocity, damping) in &mut query {
+        let mut velocity_vec = velocity.0;
+        velocity_vec *= 1.0 / (1.0 + time.delta_seconds() * damping.0);
+        velocity.x = velocity_vec.x;
+        velocity.z = velocity_vec.z;
     }
 }
 

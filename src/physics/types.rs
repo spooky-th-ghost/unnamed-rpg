@@ -9,6 +9,7 @@ impl Plugin for PhysicsTypesPlugin {
             .register_type::<MoveDirection>()
             .register_type::<Character>()
             .register_type::<Grounded>()
+            .register_type::<LateralDamping>()
             .register_type::<MeshColliderMarker>();
     }
 }
@@ -81,6 +82,10 @@ pub struct Regrab;
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
+pub struct LateralDamping(pub f32);
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct Character {
     pub ride_height: f32,
     pub spring_strength: f32,
@@ -113,6 +118,7 @@ pub struct CharacterBundle {
     character: Character,
     shape_caster: ShapeCaster,
     gravity_scale: GravityScale,
+    lateral_damping: LateralDamping,
 }
 
 impl Default for CharacterBundle {
@@ -144,6 +150,7 @@ impl Default for CharacterBundle {
             .with_max_hits(1)
             .with_ignore_self(true),
             gravity_scale: GravityScale(2.0),
+            lateral_damping: LateralDamping(5.0),
         }
     }
 }

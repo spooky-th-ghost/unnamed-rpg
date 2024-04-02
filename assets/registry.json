@@ -13677,6 +13677,22 @@
       "type": "object",
       "typeInfo": "Struct"
     },
+    "unnamed_rpg::physics::types::LateralDamping": {
+      "isComponent": true,
+      "isResource": false,
+      "items": false,
+      "prefixItems": [
+        {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        }
+      ],
+      "short_name": "LateralDamping",
+      "title": "unnamed_rpg::physics::types::LateralDamping",
+      "type": "array",
+      "typeInfo": "TupleStruct"
+    },
     "unnamed_rpg::physics::types::MeshColliderMarker": {
       "isComponent": true,
       "isResource": false,
