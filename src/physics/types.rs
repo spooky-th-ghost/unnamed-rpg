@@ -92,7 +92,7 @@ impl MoveSpeed {
             current_speed: base_speed,
             max_speed: base_speed * 2.0,
             accelerate_timer: Timer::from_seconds(0.3, TimerMode::Once),
-            decelerate_timer: Timer::from_seconds(0.5, TimerMode::Once),
+            decelerate_timer: Timer::from_seconds(0.2, TimerMode::Once),
         }
     }
 

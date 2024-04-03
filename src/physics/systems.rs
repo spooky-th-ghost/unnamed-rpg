@@ -22,7 +22,7 @@ impl Plugin for PhysicsSystemPlugin {
     }
 }
 
-fn lateral_movement(
+pub fn lateral_movement(
     time: Res<Time>,
     mut query: Query<(
         &mut LinearVelocity,

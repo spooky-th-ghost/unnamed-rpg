@@ -23,7 +23,7 @@ impl Plugin for TraditionalCameraPlugin {
             Update,
             (
                 update_camera_desired_position,
-                position_camera,
+                position_camera.after(crate::physics::systems::lateral_movement),
                 rotate_camera,
                 adjust_offset,
             )
