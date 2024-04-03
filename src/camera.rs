@@ -118,11 +118,13 @@ fn update_camera_desired_position(
 
 fn adjust_offset(player_data: Res<PlayerData>, mut camera_query: Query<&MainCamera>) {
     for camera in &mut camera_query {
+        //TODO: lerp offset why distance based on how fast we're moving
         let player_flat_velo = Vec3::new(
             player_data.player_velocity.x,
             0.0,
             player_data.player_velocity.z,
-        );
+        )
+        .length_squared();
     }
 }
 
