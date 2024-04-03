@@ -3,8 +3,8 @@ use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
 use crate::physics::types::{
-    Character, CharacterBundle, CoyoteTime, Grounded, Jumping, Momentum, MoveDirection, Regrab,
-    Speed,
+    Character, CharacterBundle, CoyoteTime, Grounded, Jumping, Momentum, MoveDirection, MoveSpeed,
+    Regrab,
 };
 use crate::GameState;
 use bevy::prelude::*;
@@ -16,7 +16,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(PlayerData::default())
+        app.insert_resource(PlayerData::new(200.0))
             .register_type::<PlayerData>()
             .add_systems(OnEnter(GameState::Overworld), spawn_overworld_player)
             .add_systems(
@@ -75,6 +75,20 @@ pub struct PlayerData {
     pub defacto_speed: f32,
     pub kicked_wall: Option<Entity>,
     pub jump_stage: u8,
+    pub player_base_speed: f32,
+    pub player_current_speed: f32,
+    pub player_max_speed: f32,
+}
+
+impl PlayerData {
+    pub fn new(speed: f32) -> Self {
+        PlayerData {
+            player_base_speed: speed,
+            player_current_speed: speed,
+            player_max_speed: speed * 2.0,
+            ..default()
+        }
+    }
 }
 
 fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache>) {
@@ -91,7 +105,7 @@ fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache
         InputBuffer::default(),
         InputListenerBundle::input_map(),
         MoveDirection::default(),
-        Speed::new(200.0),
+        MoveSpeed::new(200.0),
         Momentum::default(),
         Animated,
     ));
@@ -119,28 +133,44 @@ fn play_idle_animation(
 
 fn set_player_direction(
     camera_data: Res<CameraData>,
-    mut query: Query<(&mut MoveDirection, &ActionState<PlayerAction>)>,
+    mut query: Query<(
+        &mut MoveDirection,
+        &mut MoveSpeed,
+        &ActionState<PlayerAction>,
+        Has<Grounded>,
+    )>,
 ) {
-    for (mut direction, action) in &mut query {
-        if action.pressed(&PlayerAction::Move) {
-            let axis_pair = action.clamped_axis_pair(&PlayerAction::Move).unwrap();
-            let x = axis_pair.x();
-            let z = axis_pair.y();
+    for (mut direction, mut speed, action, has_grounded) in &mut query {
+        if has_grounded {
+            if action.pressed(&PlayerAction::Move) {
+                let axis_pair = action.clamped_axis_pair(&PlayerAction::Move).unwrap();
+                let x = axis_pair.x();
+                let z = axis_pair.y();
 
-            direction.set(camera_data.translate_direction_in_camera_space(x, z));
-        } else {
-            direction.set(Vec3::ZERO);
+                direction.set(camera_data.translate_direction_in_camera_space(x, z));
+            } else {
+                direction.set(Vec3::ZERO);
+            }
+
+            if direction.started_moving() {
+                speed.start_moving();
+            }
+
+            if direction.stopped_moving() {
+                speed.stop_moving();
+            }
         }
     }
 }
 
 fn update_player_data(
     mut player_data: ResMut<PlayerData>,
-    player_query: Query<(&Transform, &LinearVelocity), With<Player>>,
+    player_query: Query<(&Transform, &LinearVelocity, &MoveSpeed), With<Player>>,
 ) {
-    for (transform, velocity) in &player_query {
+    for (transform, velocity, speed) in &player_query {
         player_data.player_position = transform.translation;
         player_data.player_velocity = velocity.0;
+        player_data.player_current_speed = speed.get();
     }
 }
 

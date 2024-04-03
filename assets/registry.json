@@ -13406,10 +13406,22 @@
           "type": {
             "$ref": "#/$defs/glam::Vec3"
           }
+        },
+        "y_offset_max": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "y_offset_min": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
         }
       },
       "required": [
         "offset",
+        "y_offset_max",
+        "y_offset_min",
         "angle",
         "easing",
         "camera_mode",
@@ -13614,36 +13626,84 @@
       "typeInfo": "TupleStruct"
     },
     "unnamed_rpg::physics::types::MoveDirection": {
+      "additionalProperties": false,
       "isComponent": true,
       "isResource": false,
-      "items": false,
-      "prefixItems": [
-        {
+      "properties": {
+        "current_direction": {
+          "type": {
+            "$ref": "#/$defs/glam::Vec3"
+          }
+        },
+        "previous_direction": {
           "type": {
             "$ref": "#/$defs/glam::Vec3"
           }
         }
+      },
+      "required": [
+        "current_direction",
+        "previous_direction"
       ],
       "short_name": "MoveDirection",
       "title": "unnamed_rpg::physics::types::MoveDirection",
-      "type": "array",
-      "typeInfo": "TupleStruct"
+      "type": "object",
+      "typeInfo": "Struct"
     },
-    "unnamed_rpg::physics::types::Speed": {
+    "unnamed_rpg::physics::types::MoveSpeed": {
+      "additionalProperties": false,
       "isComponent": true,
       "isResource": false,
-      "items": false,
-      "prefixItems": [
-        {
+      "properties": {
+        "accelerate_timer": {
+          "type": {
+            "$ref": "#/$defs/bevy_time::timer::Timer"
+          }
+        },
+        "acceleration": {
           "type": {
             "$ref": "#/$defs/f32"
           }
+        },
+        "base_speed": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "current_speed": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "decelerate_timer": {
+          "type": {
+            "$ref": "#/$defs/bevy_time::timer::Timer"
+          }
+        },
+        "max_speed": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "state": {
+          "type": {
+            "$ref": "#/$defs/unnamed_rpg::physics::types::MoveSpeedState"
+          }
         }
+      },
+      "required": [
+        "state",
+        "base_speed",
+        "acceleration",
+        "current_speed",
+        "max_speed",
+        "accelerate_timer",
+        "decelerate_timer"
       ],
-      "short_name": "Speed",
-      "title": "unnamed_rpg::physics::types::Speed",
-      "type": "array",
-      "typeInfo": "TupleStruct"
+      "short_name": "MoveSpeed",
+      "title": "unnamed_rpg::physics::types::MoveSpeed",
+      "type": "object",
+      "typeInfo": "Struct"
     },
     "unnamed_rpg::player::PlayerData": {
       "additionalProperties": false,
@@ -13675,6 +13735,21 @@
             "$ref": "#/$defs/core::option::Option<bevy_ecs::entity::Entity>"
           }
         },
+        "player_base_speed": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "player_current_speed": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "player_max_speed": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
         "player_position": {
           "type": {
             "$ref": "#/$defs/glam::Vec3"
@@ -13698,7 +13773,10 @@
         "floor_normal",
         "speed",
         "defacto_speed",
-        "jump_stage"
+        "jump_stage",
+        "player_base_speed",
+        "player_current_speed",
+        "player_max_speed"
       ],
       "short_name": "PlayerData",
       "title": "unnamed_rpg::player::PlayerData",

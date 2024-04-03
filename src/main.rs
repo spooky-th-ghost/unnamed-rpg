@@ -1,7 +1,4 @@
-use bevy::{
-    math::bounding::{BoundingSphere, IntersectsVolume},
-    prelude::*,
-};
+use bevy::prelude::*;
 use bevy_gltf_blueprints::*;
 use bevy_xpbd_3d::prelude::*;
 
@@ -37,7 +34,6 @@ fn main() {
     .insert_state(GameState::Preload)
     .add_systems(Startup, setup)
     .add_systems(OnEnter(GameState::Overworld), post_load_spawn);
-
     #[cfg(feature = "debug-render")]
     {
         println!("Debug Renderer eneabled");
@@ -49,7 +45,6 @@ fn main() {
         println!("Inpsector Enabled");
         app.add_plugins(WorldInspectorPlugin::default());
     }
-
     app.run();
 }
 
@@ -90,7 +85,6 @@ fn setup(
             shadows_enabled: true,
             ..default()
         },
-
         transform: Transform::from_xyz(0.0, 5.0, 0.0),
         ..default()
     });
@@ -118,34 +112,4 @@ fn post_load_spawn(mut commands: Commands) {
         },
         SpawnHere,
     ));
-}
-
-fn move_mover(time: Res<Time>, mut mover_query: Query<&mut Transform, With<Mover>>) {
-    for mut transform in &mut mover_query {
-        transform.translation.x = time.elapsed_seconds().sin() * 4.0;
-    }
-}
-
-fn detect_red_sphere(
-    mut gizmos: Gizmos,
-    mover_query: Query<&Transform, With<Mover>>,
-    sphere_query: Query<&Transform, With<SphereBoy>>,
-) {
-    for mover_transform in &mover_query {
-        for sphere_transform in &sphere_query {
-            let mover_bounding = BoundingSphere::new(mover_transform.translation, 2.0);
-            let sphere_bounding = BoundingSphere::new(sphere_transform.translation, 1.0);
-            let gizmo_color = if mover_bounding.intersects(&sphere_bounding) {
-                Color::YELLOW
-            } else {
-                Color::BLUE
-            };
-            gizmos.sphere(
-                mover_transform.translation,
-                Quat::IDENTITY,
-                2.0,
-                gizmo_color,
-            );
-        }
-    }
 }

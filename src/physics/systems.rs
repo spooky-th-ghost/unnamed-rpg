@@ -11,7 +11,7 @@ impl Plugin for PhysicsSystemPlugin {
             Update,
             (
                 replace_character_physics_settings,
-                move_to_target,
+                lateral_movement,
                 rotate_to_direction,
                 floating_capsule,
                 lateral_damping,
@@ -22,11 +22,17 @@ impl Plugin for PhysicsSystemPlugin {
     }
 }
 
-fn move_to_target(
+fn lateral_movement(
     time: Res<Time>,
-    mut query: Query<(&mut LinearVelocity, &Transform, &Speed, &MoveDirection)>,
+    mut query: Query<(
+        &mut LinearVelocity,
+        &mut MoveSpeed,
+        &Transform,
+        &MoveDirection,
+    )>,
 ) {
-    for (mut velocity, transform, speed, direction) in &mut query {
+    for (mut velocity, mut speed, transform, direction) in &mut query {
+        speed.tick(&time);
         if direction.is_any() {
             let desired_velocity = time.delta_seconds() * speed.get() * *transform.forward();
             velocity.x = desired_velocity.x;
@@ -46,7 +52,7 @@ fn lateral_damping(time: Res<Time>, mut query: Query<(&mut LinearVelocity, &Late
 
 fn rotate_to_direction(
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &MoveDirection, &Speed, &ShapeHits), With<Character>>,
+    mut query: Query<(&mut Transform, &MoveDirection, &MoveSpeed, &ShapeHits), With<Character>>,
     mut rotation_target: Local<Transform>,
 ) {
     for (mut transform, direction, speed, ground_hits) in &mut query {

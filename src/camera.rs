@@ -25,6 +25,7 @@ impl Plugin for TraditionalCameraPlugin {
                 update_camera_desired_position,
                 position_camera,
                 rotate_camera,
+                adjust_offset,
             )
                 .run_if(in_state(GameState::Overworld)),
         );
@@ -35,6 +36,8 @@ impl Plugin for TraditionalCameraPlugin {
 #[reflect(Component)]
 pub struct MainCamera {
     offset: Vec3,
+    y_offset_max: f32,
+    y_offset_min: f32,
     angle: f32,
     easing: f32,
     camera_mode: CameraMode,
@@ -93,7 +96,9 @@ fn spawn_camera(mut commands: Commands) {
     commands
         .spawn(Camera3dBundle::default())
         .insert(MainCamera {
-            offset: Vec3::new(0.0, 4.0, 10.0),
+            offset: Vec3::new(0.0, 6.5, 10.0),
+            y_offset_max: 9.5,
+            y_offset_min: 4.5,
             angle: 0.0,
             easing: 4.0,
             camera_mode: CameraMode::Free,
@@ -116,15 +121,14 @@ fn update_camera_desired_position(
     }
 }
 
-fn adjust_offset(player_data: Res<PlayerData>, mut camera_query: Query<&MainCamera>) {
-    for camera in &mut camera_query {
-        //TODO: lerp offset why distance based on how fast we're moving
-        let player_flat_velo = Vec3::new(
-            player_data.player_velocity.x,
-            0.0,
-            player_data.player_velocity.z,
-        )
-        .length_squared();
+fn adjust_offset(player_data: Res<PlayerData>, mut camera_query: Query<&mut MainCamera>) {
+    for mut camera in &mut camera_query {
+        let speed_percentage =
+            (player_data.player_current_speed / player_data.player_max_speed) * 2.0;
+        camera.offset.y = 2.5
+            + camera
+                .y_offset_max
+                .lerp(camera.y_offset_min, speed_percentage);
     }
 }
 

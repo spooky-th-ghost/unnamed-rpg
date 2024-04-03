@@ -5,7 +5,7 @@ pub struct PhysicsTypesPlugin;
 
 impl Plugin for PhysicsTypesPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Speed>()
+        app.register_type::<MoveSpeed>()
             .register_type::<MoveDirection>()
             .register_type::<Character>()
             .register_type::<Grounded>()
@@ -16,19 +16,31 @@ impl Plugin for PhysicsTypesPlugin {
 
 #[derive(Component, Default, Reflect)]
 #[reflect(Component)]
-pub struct MoveDirection(Vec3);
+pub struct MoveDirection {
+    current_direction: Vec3,
+    previous_direction: Vec3,
+}
 
 impl MoveDirection {
     pub fn get(&self) -> Vec3 {
-        self.0
+        self.current_direction
     }
 
     pub fn set(&mut self, value: Vec3) {
-        self.0 = value;
+        self.previous_direction = self.current_direction;
+        self.current_direction = value;
     }
 
     pub fn is_any(&self) -> bool {
-        self.0 != Vec3::ZERO
+        self.current_direction != Vec3::ZERO
+    }
+
+    pub fn started_moving(&self) -> bool {
+        self.current_direction != Vec3::ZERO && self.previous_direction == Vec3::ZERO
+    }
+
+    pub fn stopped_moving(&self) -> bool {
+        self.current_direction == Vec3::ZERO && self.previous_direction != Vec3::ZERO
     }
 }
 
@@ -50,17 +62,100 @@ impl Momentum {
     }
 }
 
+#[derive(Default, Reflect)]
+pub enum MoveSpeedState {
+    #[default]
+    Paused,
+    Startup,
+    Accelerating,
+    Decelerating,
+}
+
 #[derive(Component, Default, Reflect)]
 #[reflect(Component)]
-pub struct Speed(f32);
+pub struct MoveSpeed {
+    state: MoveSpeedState,
+    base_speed: f32,
+    acceleration: f32,
+    current_speed: f32,
+    max_speed: f32,
+    accelerate_timer: Timer,
+    decelerate_timer: Timer,
+}
 
-impl Speed {
-    pub fn new(value: f32) -> Self {
-        Speed(value)
+impl MoveSpeed {
+    pub fn new(base_speed: f32) -> Self {
+        MoveSpeed {
+            state: MoveSpeedState::default(),
+            base_speed,
+            acceleration: 1.5,
+            current_speed: base_speed,
+            max_speed: base_speed * 2.0,
+            accelerate_timer: Timer::from_seconds(0.3, TimerMode::Once),
+            decelerate_timer: Timer::from_seconds(0.5, TimerMode::Once),
+        }
     }
 
     pub fn get(&self) -> f32 {
-        self.0
+        self.current_speed
+    }
+
+    pub fn tick(&mut self, time: &Res<Time>) {
+        match self.state {
+            MoveSpeedState::Startup => {
+                self.accelerate_timer.tick(time.delta());
+                if self.accelerate_timer.finished() {
+                    self.state = MoveSpeedState::Accelerating;
+                }
+            }
+            MoveSpeedState::Decelerating => {
+                self.decelerate_timer.tick(time.delta());
+                if self.decelerate_timer.finished() {
+                    self.decelarate(time.delta_seconds());
+                }
+            }
+            MoveSpeedState::Accelerating => {
+                self.accelarate(time.delta_seconds());
+            }
+            _ => (),
+        }
+    }
+
+    pub fn start_moving(&mut self) {
+        match self.state {
+            MoveSpeedState::Decelerating => {
+                self.state = MoveSpeedState::Accelerating;
+                self.decelerate_timer.reset();
+            }
+            _ => {
+                self.state = MoveSpeedState::Startup;
+                self.accelerate_timer.reset();
+                self.decelerate_timer.reset();
+            }
+        }
+    }
+
+    pub fn stop_moving(&mut self) {
+        match self.state {
+            MoveSpeedState::Accelerating => self.state = MoveSpeedState::Decelerating,
+            _ => {
+                self.state = MoveSpeedState::Paused;
+                self.decelerate_timer.reset();
+                self.accelerate_timer.reset();
+            }
+        }
+    }
+
+    fn accelarate(&mut self, delta_seconds: f32) {
+        self.current_speed = self
+            .current_speed
+            .lerp(self.max_speed, delta_seconds * self.acceleration);
+    }
+
+    fn decelarate(&mut self, delta_seconds: f32) {
+        self.current_speed = self
+            .current_speed
+            .lerp(self.base_speed, delta_seconds * self.acceleration);
     }
 }
 
