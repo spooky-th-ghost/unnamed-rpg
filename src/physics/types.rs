@@ -86,6 +86,26 @@ pub struct LateralDamping(pub f32);
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
+pub struct CoyoteTime(Timer);
+
+impl CoyoteTime {
+    pub fn tick(&mut self, delta: std::time::Duration) {
+        self.0.tick(delta);
+    }
+
+    pub fn finished(&self) -> bool {
+        self.0.finished()
+    }
+}
+
+impl Default for CoyoteTime {
+    fn default() -> Self {
+        CoyoteTime(Timer::from_seconds(0.33, TimerMode::Once))
+    }
+}
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct Character {
     pub ride_height: f32,
     pub spring_strength: f32,
@@ -154,6 +174,3 @@ impl Default for CharacterBundle {
         }
     }
 }
-
-#[derive(Component)]
-pub struct GroundSensor;

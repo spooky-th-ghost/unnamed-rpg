@@ -3,11 +3,12 @@ use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
 use crate::physics::types::{
-    Character, CharacterBundle, Jumping, Momentum, MoveDirection, Regrab, Speed,
+    Character, CharacterBundle, CoyoteTime, Grounded, Jumping, Momentum, MoveDirection, Regrab,
+    Speed,
 };
 use crate::GameState;
 use bevy::prelude::*;
-use bevy_xpbd_3d::{math::*, prelude::*, PhysicsSchedule, PhysicsStepSet};
+use bevy_xpbd_3d::prelude::*;
 use leafwing_input_manager::action_state::ActionState;
 use std::time::Duration;
 
@@ -187,15 +188,24 @@ fn jump(
     mut character_query: Query<(
         Entity,
         &mut LinearVelocity,
-        &ShapeHits,
         &Character,
         &InputBuffer,
+        Has<Grounded>,
+        Has<CoyoteTime>,
     )>,
 ) {
-    for (entity, mut velocity, ground_hits, character, input) in &mut character_query {
-        if !ground_hits.is_empty() && input.just_pressed(PlayerAction::Jump) {
+    for (entity, mut velocity, character, input, has_grounded, has_coyote_time) in
+        &mut character_query
+    {
+        if (has_grounded || has_coyote_time) && input.just_pressed(PlayerAction::Jump) {
             velocity.y = character.jump_strength;
             commands.entity(entity).insert(Jumping);
+            if has_coyote_time {
+                commands.entity(entity).remove::<CoyoteTime>();
+            }
+            if has_grounded {
+                commands.entity(entity).remove::<Grounded>();
+            }
         }
     }
 }

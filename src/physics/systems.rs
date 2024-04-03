@@ -14,6 +14,7 @@ impl Plugin for PhysicsSystemPlugin {
                 rotate_to_direction,
                 floating_capsule,
                 lateral_damping,
+                handle_coyote_time,
             )
                 .run_if(in_state(GameState::Overworld)),
         );
@@ -67,10 +68,21 @@ fn rotate_to_direction(
 }
 
 fn floating_capsule(
-    mut character_query: Query<(&mut ExternalForce, &LinearVelocity, &ShapeHits, &Character)>,
+    mut commands: Commands,
+    mut character_query: Query<(
+        Entity,
+        &mut ExternalForce,
+        &LinearVelocity,
+        &ShapeHits,
+        &Character,
+        Has<Grounded>,
+        Has<Jumping>,
+    )>,
     velocity_query: Query<&LinearVelocity, Without<Character>>,
 ) {
-    for (mut force, velocity, ground_hits, character) in &mut character_query {
+    for (entity, mut force, velocity, ground_hits, character, has_grounded, has_jumping) in
+        &mut character_query
+    {
         if !ground_hits.is_empty() {
             let ray_dir = Vec3::Y;
             let mut other_velocity = LinearVelocity::default();
@@ -95,6 +107,29 @@ fn floating_capsule(
 
             let applied_force = ray_dir * spring_force;
             force.set_force(applied_force);
+            if !has_grounded && !has_jumping {
+                commands.entity(entity).insert(Grounded);
+            }
+        } else {
+            if has_grounded {
+                commands.entity(entity).remove::<Grounded>();
+                if !has_jumping {
+                    commands.entity(entity).insert(CoyoteTime::default());
+                }
+            }
+        }
+    }
+}
+
+fn handle_coyote_time(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut CoyoteTime)>,
+) {
+    for (entity, mut coyote_time) in &mut query {
+        coyote_time.tick(time.delta());
+        if coyote_time.finished() {
+            commands.entity(entity).remove::<CoyoteTime>();
         }
     }
 }
