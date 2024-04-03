@@ -130,15 +130,15 @@ impl Default for Character {
 
 #[derive(Bundle)]
 pub struct CharacterBundle {
-    rigid_body: RigidBody,
-    locked_axes: LockedAxes,
-    collider: Collider,
-    external_force: ExternalForce,
-    restitution: Restitution,
-    character: Character,
-    shape_caster: ShapeCaster,
-    gravity_scale: GravityScale,
-    lateral_damping: LateralDamping,
+    pub rigid_body: RigidBody,
+    pub locked_axes: LockedAxes,
+    pub collider: Collider,
+    pub external_force: ExternalForce,
+    pub restitution: Restitution,
+    pub character: Character,
+    pub shape_caster: ShapeCaster,
+    pub gravity_scale: GravityScale,
+    pub lateral_damping: LateralDamping,
 }
 
 impl Default for CharacterBundle {
@@ -173,4 +173,21 @@ impl Default for CharacterBundle {
             lateral_damping: LateralDamping(5.0),
         }
     }
+}
+
+#[derive(PhysicsLayer, Default, Clone, Copy, Debug, Reflect)]
+pub enum CollisionLayer {
+    #[default]
+    Character,
+    Vehicle,
+    AreaTransition,
+}
+
+/// Marker component for pipeline convenience, will be removed on the first frame and will insert a
+/// character bundle in it's place
+#[derive(Component, Reflect, Default)]
+#[reflect(Component)]
+pub struct CharacterPhysicsSettings {
+    pub collider_height: f32,
+    pub collider_radius: f32,
 }

@@ -17,6 +17,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PlayerData::default())
+            .register_type::<PlayerData>()
             .add_systems(OnEnter(GameState::Overworld), spawn_overworld_player)
             .add_systems(
                 Update,
@@ -63,9 +64,11 @@ pub struct PlayerStateTransitionEvent {
     pub new_state: PlayerState,
 }
 
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Reflect)]
+#[reflect(Resource)]
 pub struct PlayerData {
     pub player_position: Vec3,
+    pub player_velocity: Vec3,
     pub distance_from_floor: f32,
     pub floor_normal: Vec3,
     pub speed: f32,
@@ -133,10 +136,11 @@ fn set_player_direction(
 
 fn update_player_data(
     mut player_data: ResMut<PlayerData>,
-    player_query: Query<&Transform, With<Player>>,
+    player_query: Query<(&Transform, &LinearVelocity), With<Player>>,
 ) {
-    for transform in &player_query {
+    for (transform, velocity) in &player_query {
         player_data.player_position = transform.translation;
+        player_data.player_velocity = velocity.0;
     }
 }
 

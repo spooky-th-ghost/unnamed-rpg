@@ -4,7 +4,35 @@ use crate::GameState;
 
 use bevy::prelude::*;
 
-#[derive(Component, Default)]
+pub struct CameraPlugin;
+
+impl Plugin for CameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(OnEnter(GameState::Overworld), spawn_camera)
+            .insert_resource(CameraData::default())
+            .add_plugins(TraditionalCameraPlugin)
+            .register_type::<MainCamera>();
+    }
+}
+
+struct TraditionalCameraPlugin;
+
+impl Plugin for TraditionalCameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            (
+                update_camera_desired_position,
+                position_camera,
+                rotate_camera,
+            )
+                .run_if(in_state(GameState::Overworld)),
+        );
+    }
+}
+
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct MainCamera {
     offset: Vec3,
     angle: f32,
@@ -37,7 +65,7 @@ impl CameraData {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Reflect)]
 pub enum CameraMode {
     #[default]
     Fixed,
@@ -65,7 +93,7 @@ fn spawn_camera(mut commands: Commands) {
     commands
         .spawn(Camera3dBundle::default())
         .insert(MainCamera {
-            offset: Vec3::new(0.0, 7.0, 10.0),
+            offset: Vec3::new(0.0, 4.0, 10.0),
             angle: 0.0,
             easing: 4.0,
             camera_mode: CameraMode::Free,
@@ -85,6 +113,16 @@ fn update_camera_desired_position(
         let dir = starting_transform.forward().normalize();
         camera.desired_position =
             starting_transform.translation + (dir * camera.offset.z) + (Vec3::Y * camera.offset.y);
+    }
+}
+
+fn adjust_offset(player_data: Res<PlayerData>, mut camera_query: Query<&MainCamera>) {
+    for camera in &mut camera_query {
+        let player_flat_velo = Vec3::new(
+            player_data.player_velocity.x,
+            0.0,
+            player_data.player_velocity.z,
+        );
     }
 }
 
@@ -162,23 +200,5 @@ fn rotate_camera(
                 camera.angle += 360.0;
             }
         }
-    }
-}
-
-pub struct CameraPlugin;
-
-impl Plugin for CameraPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Overworld), spawn_camera)
-            .insert_resource(CameraData::default())
-            .add_systems(
-                Update,
-                (
-                    update_camera_desired_position,
-                    position_camera,
-                    rotate_camera,
-                )
-                    .run_if(in_state(GameState::Overworld)),
-            );
     }
 }

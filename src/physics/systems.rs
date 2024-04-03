@@ -1,7 +1,7 @@
 use super::types::*;
 use crate::GameState;
 use bevy::prelude::*;
-use bevy_xpbd_3d::prelude::*;
+use bevy_xpbd_3d::{math::Quaternion, prelude::*};
 
 pub struct PhysicsSystemPlugin;
 
@@ -10,6 +10,7 @@ impl Plugin for PhysicsSystemPlugin {
         app.add_systems(
             Update,
             (
+                replace_character_physics_settings,
                 move_to_target,
                 rotate_to_direction,
                 floating_capsule,
@@ -131,5 +132,37 @@ fn handle_coyote_time(
         if coyote_time.finished() {
             commands.entity(entity).remove::<CoyoteTime>();
         }
+    }
+}
+
+fn replace_character_physics_settings(
+    mut commands: Commands,
+    query: Query<(Entity, &CharacterPhysicsSettings), Added<CharacterPhysicsSettings>>,
+) {
+    for (entity, settings) in &query {
+        commands
+            .entity(entity)
+            .remove::<CharacterPhysicsSettings>()
+            .insert(CharacterBundle {
+                collider: Collider::capsule(settings.collider_height, settings.collider_radius),
+                character: Character {
+                    ride_height: 1.4 * settings.collider_height,
+                    spring_strength: 23.0,
+                    spring_damper: 5.0,
+                    jump_strength: 17.5,
+                    base_gravity_scale: 2.0,
+                    regrab_gravity_scale: 1.5,
+                },
+                shape_caster: ShapeCaster::new(
+                    Collider::capsule(settings.collider_height, settings.collider_radius * 0.7),
+                    Vec3::NEG_Y * (0.05 * settings.collider_height),
+                    Quaternion::default(),
+                    Direction3d::NEG_Y,
+                )
+                .with_max_time_of_impact(settings.collider_height)
+                .with_max_hits(1)
+                .with_ignore_self(true),
+                ..default()
+            });
     }
 }

@@ -2682,6 +2682,30 @@
       "type": "object",
       "typeInfo": "Value"
     },
+    "bevy_egui::EguiSettings": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": false,
+      "properties": {
+        "default_open_url_target": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<alloc::string::String>"
+          }
+        },
+        "scale_factor": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        }
+      },
+      "required": [
+        "scale_factor"
+      ],
+      "short_name": "EguiSettings",
+      "title": "bevy_egui::EguiSettings",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "bevy_gizmos::aabb::AabbGizmoConfigGroup": {
       "additionalProperties": false,
       "isComponent": false,
@@ -8410,6 +8434,43 @@
       "type": "object",
       "typeInfo": "Struct"
     },
+    "bevy_time::virt::Virtual": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": false,
+      "properties": {
+        "effective_speed": {
+          "type": {
+            "$ref": "#/$defs/f64"
+          }
+        },
+        "max_delta": {
+          "type": {
+            "$ref": "#/$defs/bevy_utils::Duration"
+          }
+        },
+        "paused": {
+          "type": {
+            "$ref": "#/$defs/bool"
+          }
+        },
+        "relative_speed": {
+          "type": {
+            "$ref": "#/$defs/f64"
+          }
+        }
+      },
+      "required": [
+        "max_delta",
+        "paused",
+        "relative_speed",
+        "effective_speed"
+      ],
+      "short_name": "Virtual",
+      "title": "bevy_time::virt::Virtual",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "bevy_transform::components::global_transform::GlobalTransform": {
       "isComponent": true,
       "isResource": false,
@@ -11390,6 +11451,14 @@
       "type": "object",
       "typeInfo": "Value"
     },
+    "core::ops::Range<f64>": {
+      "isComponent": false,
+      "isResource": false,
+      "short_name": "Range<f64>",
+      "title": "core::ops::Range<f64>",
+      "type": "object",
+      "typeInfo": "Value"
+    },
     "core::option::Option<alloc::string::String>": {
       "isComponent": false,
       "isResource": false,
@@ -13308,6 +13377,49 @@
       "type": "object",
       "typeInfo": "Struct"
     },
+    "unnamed_rpg::camera::MainCamera": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {
+        "angle": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "camera_mode": {
+          "type": {
+            "$ref": "#/$defs/unnamed_rpg::camera::CameraMode"
+          }
+        },
+        "desired_position": {
+          "type": {
+            "$ref": "#/$defs/glam::Vec3"
+          }
+        },
+        "easing": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "offset": {
+          "type": {
+            "$ref": "#/$defs/glam::Vec3"
+          }
+        }
+      },
+      "required": [
+        "offset",
+        "angle",
+        "easing",
+        "camera_mode",
+        "desired_position"
+      ],
+      "short_name": "MainCamera",
+      "title": "unnamed_rpg::camera::MainCamera",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "unnamed_rpg::environment::Chest": {
       "additionalProperties": false,
       "isComponent": true,
@@ -13532,6 +13644,66 @@
       "title": "unnamed_rpg::physics::types::Speed",
       "type": "array",
       "typeInfo": "TupleStruct"
+    },
+    "unnamed_rpg::player::PlayerData": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": true,
+      "properties": {
+        "defacto_speed": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "distance_from_floor": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        },
+        "floor_normal": {
+          "type": {
+            "$ref": "#/$defs/glam::Vec3"
+          }
+        },
+        "jump_stage": {
+          "type": {
+            "$ref": "#/$defs/u8"
+          }
+        },
+        "kicked_wall": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_ecs::entity::Entity>"
+          }
+        },
+        "player_position": {
+          "type": {
+            "$ref": "#/$defs/glam::Vec3"
+          }
+        },
+        "player_velocity": {
+          "type": {
+            "$ref": "#/$defs/glam::Vec3"
+          }
+        },
+        "speed": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        }
+      },
+      "required": [
+        "player_position",
+        "player_velocity",
+        "distance_from_floor",
+        "floor_normal",
+        "speed",
+        "defacto_speed",
+        "jump_stage"
+      ],
+      "short_name": "PlayerData",
+      "title": "unnamed_rpg::player::PlayerData",
+      "type": "object",
+      "typeInfo": "Struct"
     },
     "usize": {
       "isComponent": false,
