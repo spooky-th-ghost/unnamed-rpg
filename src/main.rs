@@ -7,6 +7,7 @@ mod assets;
 mod camera;
 mod environment;
 mod input;
+mod item;
 mod physics;
 mod player;
 mod types;

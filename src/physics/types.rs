@@ -275,7 +275,9 @@ pub enum CollisionLayer {
     #[default]
     Character,
     Vehicle,
+    Terrain,
     AreaTransition,
+    Item,
 }
 
 /// Marker component for pipeline convenience, will be removed on the first frame and will insert a
