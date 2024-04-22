@@ -164,7 +164,7 @@ fn spawn_camera(
             y_offset_max: 9.5,
             y_offset_min: 4.5,
             angle: 0.0,
-            easing: 4.0,
+            easing: 2.0,
             camera_mode: CameraMode::Free,
             desired_position: Vec3::ZERO,
         },
