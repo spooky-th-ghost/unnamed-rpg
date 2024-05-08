@@ -26,6 +26,7 @@ fn main() {
         assets::AssetPlugin,
         animation::AnimationPlugin,
         environment::EnvironmentPlugin,
+        item::ItemPlugin,
     ))
     .insert_resource(AmbientLight {
         color: Color::WHITE,
@@ -77,6 +78,21 @@ fn setup(
         },
         RigidBody::Static,
         Collider::cuboid(50.0, 0.5, 50.0),
+    ));
+
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(bevy::prelude::Sphere::new(0.5).mesh()),
+            material: materials.add(Color::ORANGE),
+            transform: Transform::from_xyz(5.0, 0.5, 5.0),
+            ..default()
+        },
+        RigidBody::Static,
+        Collider::sphere(0.5),
+        item::OverworldItem {
+            id: item::ItemId::Milkshake,
+        },
+        Sensor,
     ));
 
     commands.spawn(DirectionalLightBundle {

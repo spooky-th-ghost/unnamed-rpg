@@ -13464,6 +13464,92 @@
       "type": "object",
       "typeInfo": "Struct"
     },
+    "unnamed_rpg::item::Inventory": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": true,
+      "properties": {
+        "items": {
+          "type": {
+            "$ref": "#/$defs/alloc::vec::Vec<unnamed_rpg::item::Item>"
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "short_name": "Inventory",
+      "title": "unnamed_rpg::item::Inventory",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "unnamed_rpg::item::Item": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": false,
+      "properties": {
+        "id": {
+          "type": {
+            "$ref": "#/$defs/unnamed_rpg::item::ItemId"
+          }
+        },
+        "inspection_model": {
+          "type": {
+            "$ref": "#/$defs/bevy_asset::handle::Handle<bevy_scene::scene::Scene>"
+          }
+        },
+        "inventory_icon": {
+          "type": {
+            "$ref": "#/$defs/bevy_asset::handle::Handle<bevy_render::texture::image::Image>"
+          }
+        },
+        "value": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "value",
+        "inspection_model",
+        "inventory_icon"
+      ],
+      "short_name": "Item",
+      "title": "unnamed_rpg::item::Item",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "unnamed_rpg::item::ItemId": {
+      "isComponent": false,
+      "isResource": false,
+      "oneOf": [
+        "Milkshake"
+      ],
+      "short_name": "ItemId",
+      "title": "unnamed_rpg::item::ItemId",
+      "type": "string",
+      "typeInfo": "Enum"
+    },
+    "unnamed_rpg::item::OverworldItem": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {
+        "id": {
+          "type": {
+            "$ref": "#/$defs/unnamed_rpg::item::ItemId"
+          }
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "short_name": "OverworldItem",
+      "title": "unnamed_rpg::item::OverworldItem",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "unnamed_rpg::physics::types::Character": {
       "additionalProperties": false,
       "isComponent": true,

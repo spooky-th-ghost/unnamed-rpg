@@ -24,7 +24,7 @@ impl Plugin for PlayerPlugin {
                 (
                     set_player_direction,
                     play_idle_animation,
-                    transition_player_state.run_if(on_event::<AnimationTransitionEvent>()),
+                    transition_player_state,
                     update_player_data,
                     jump,
                     handle_regrab,
