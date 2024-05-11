@@ -58,7 +58,7 @@ impl Item {
     }
 }
 
-#[derive(PartialEq, Reflect)]
+#[derive(PartialEq, Reflect, Clone, Copy)]
 pub enum ItemId {
     Milkshake,
 }
@@ -70,20 +70,25 @@ fn pickup_items(
     // A bevy_xpbd resource that lists all collisions,
     collisions: Res<Collisions>,
     // a resource that holds the players inventory
-    inventory: Res<Inventory>,
+    mut inventory: ResMut<Inventory>,
     // A query that finds the player entity
     player_query: Query<Entity, With<Player>>,
     // A query that finds all entities with an OverWorldItem Component
-    item_query: Query<(Entity, &OverworldItem)>,
+    item_query: Query<&OverworldItem>,
 ) {
     if let Ok(player_entity) = player_query.get_single() {
+        // 1. Use collisions to find all entities colliding with the player entity
         for collision in collisions.collisions_with_entity(player_entity) {
-            // in order to pickup an item you will need to do the following
-            // 1. Use collisions to find all entities colliding with the player entity
             // 2. Check those collision pairs to see if one of the entites is the player and the other is
             //    the item
-            // 3. Add the item to the players inventory
-            // 4. Despawn the item
+            // if my player_entitty collides with  overworld item
+            if let Ok (overworld_item) = item_query.get(collision.entity1){
+                // 3. Add the item to the players inventory
+                // add overworld item to inventory 
+                inventory.add_to_inventory(overworld_item.id);
+                // 4. Despawn the item
+                commands.entity(collision.entity1).despawn_recursive();
+            }
         }
     }
 }
