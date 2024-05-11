@@ -82,12 +82,18 @@ fn pickup_items(
             // 2. Check those collision pairs to see if one of the entites is the player and the other is
             //    the item
             // if my player_entitty collides with  overworld item
-            if let Ok (overworld_item) = item_query.get(collision.entity1){
+            let item_entity = if collision.entity1 == player_entity {
+                collision.entity2
+            } else {
+                collision.entity1
+            };
+
+            if let Ok(overworld_item) = item_query.get(item_entity) {
                 // 3. Add the item to the players inventory
-                // add overworld item to inventory 
+                // add overworld item to inventory
                 inventory.add_to_inventory(overworld_item.id);
                 // 4. Despawn the item
-                commands.entity(collision.entity1).despawn_recursive();
+                commands.entity(item_entity).despawn_recursive();
             }
         }
     }
