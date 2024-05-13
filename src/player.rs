@@ -206,11 +206,10 @@ fn transition_player_state(
 
 fn handle_jumping(
     mut commands: Commands,
-    input: Res<ButtonInput<KeyCode>>,
-    mut character_query: Query<(Entity, &mut LinearVelocity), With<Jumping>>,
+    mut character_query: Query<(Entity, &mut LinearVelocity, &InputBuffer), With<Jumping>>,
 ) {
-    for (entity, mut velocity) in &mut character_query {
-        if input.just_released(KeyCode::Space) || velocity.y <= 0.0 {
+    for (entity, mut velocity, input_buffer) in &mut character_query {
+        if input_buffer.released(PlayerAction::Jump) || velocity.y <= 0.0 {
             commands.entity(entity).remove::<Jumping>();
             velocity.y = 0.0;
         }
