@@ -1,6 +1,7 @@
 use crate::animation::{Animated, AnimationInit, AnimationMap, AnimationTransitionEvent};
 use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
+use crate::environment::{Transition, TransitionDestination};
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
 use crate::physics::types::{
     Character, CharacterBundle, CoyoteTime, Grounded, Jumping, Momentum, MoveDirection, MoveSpeed,
@@ -29,6 +30,7 @@ impl Plugin for PlayerPlugin {
                     jump,
                     handle_regrab,
                     handle_jumping,
+                    handle_transitions,
                 )
                     .run_if(in_state(GameState::Overworld)),
             );
@@ -270,6 +272,38 @@ fn handle_regrab(
         {
             commands.entity(entity).insert(Regrab);
             gravity_scale.0 = character.regrab_gravity_scale;
+        }
+    }
+}
+
+fn handle_transitions(
+    // Here we query the players entity, to check if it has collided with anything, as well as its
+    // Transform, to move it if we hit a transition
+    mut player_query: Query<(Entity, &mut Transform), With<Player>>,
+    // Here we query for any transitions in the world, the Without<Player> filter here is needed to
+    // ensure we don't have overlap between a mutable (writeable) and immutable (read-only) query
+    transitions_query: Query<&Transition, Without<Player>>,
+    // This is a resource from our physics library (bevy_xpdb) that lists all colllisions happening
+    // on the current frame
+    collisions: Res<Collisions>,
+) {
+    // We know there is only one entity with the player component so we grab it with .get_single()
+    // here
+    if let Ok((player_entity, mut player_transform)) = player_query.get_single() {
+        // Here we iterate through each collision this frame with our player entity
+        for collision in collisions.collisions_with_entity(player_entity) {
+            //The player could be entity1 or entity2 in the collision so this code just ensures we
+            //are grabbing the entity that is not our player
+            let transition_entity = if collision.entity1 == player_entity {
+                collision.entity2
+            } else {
+                collision.entity1
+            };
+
+            // 1. Check the transitions_query to find what if we hit an object with a `Transition`
+            //    component
+            // 2. If we did, we need to `match` against transition.destination what type of transition we should do (Location or Scene, just focus on Location for now
+            // 3. Once we have the target location, set `player_transform.translation` to match it)
         }
     }
 }

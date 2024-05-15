@@ -95,7 +95,21 @@ fn setup(
             id: item::ItemId::Milkshake,
         },
         Sensor,
-        physics::collision::item_layers(),
+        physics::collision::CollisionLayer::item_layers(),
+    ));
+
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(bevy::prelude::Cylinder::new(1.5, 0.2).mesh()),
+            material: materials.add(Color::TEAL),
+            transform: Transform::from_xyz(-5.0, 0.5, 5.0),
+            ..default()
+        },
+        RigidBody::Static,
+        Collider::sphere(0.5),
+        environment::Transition::default(),
+        Sensor,
+        physics::collision::CollisionLayer::transition_layers(),
     ));
 
     commands.spawn(DirectionalLightBundle {
@@ -131,6 +145,6 @@ fn post_load_spawn(mut commands: Commands) {
             ..default()
         },
         SpawnHere,
-        physics::collision::object_layers(),
+        physics::collision::CollisionLayer::object_layers(),
     ));
 }

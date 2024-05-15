@@ -47,6 +47,24 @@ pub struct Dumpster;
 #[reflect(Component)]
 pub struct Door;
 
+#[derive(Component, Reflect, Default)]
+#[reflect(Component)]
+pub struct Transition {
+    destination: TransitionDestination,
+}
+
+#[derive(Reflect)]
+pub enum TransitionDestination {
+    Location(Vec3),
+    Scene,
+}
+
+impl Default for TransitionDestination {
+    fn default() -> Self {
+        Self::Location(Vec3::ZERO)
+    }
+}
+
 #[derive(Event)]
 pub struct OpenEvent(pub Entity);
 

@@ -1,3 +1,4 @@
+use super::collision::CollisionLayer;
 use bevy::prelude::*;
 use bevy_xpbd_3d::{math::*, prelude::*};
 
@@ -265,7 +266,7 @@ impl Default for CharacterBundle {
             .with_max_hits(1)
             .with_ignore_self(true)
             .with_query_filter(SpatialQueryFilter::from_mask(
-                super::collision::standable_mask(),
+                CollisionLayer::standable_mask(),
             )),
             gravity_scale: GravityScale(2.0),
             lateral_damping: LateralDamping(5.0),

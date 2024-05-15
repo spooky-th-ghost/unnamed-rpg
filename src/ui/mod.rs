@@ -34,7 +34,7 @@ fn spawn_ui(
             ))
             .with_children(|ui| {
                 ui.spawn(TextBundle::from_section(
-                    "RATSSSS",
+                    "$10.00",
                     TextStyle {
                         font: font_handle,
                         font_size: 30.0,
