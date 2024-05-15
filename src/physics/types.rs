@@ -263,21 +263,14 @@ impl Default for CharacterBundle {
             )
             .with_max_time_of_impact(1.0)
             .with_max_hits(1)
-            .with_ignore_self(true),
+            .with_ignore_self(true)
+            .with_query_filter(SpatialQueryFilter::from_mask(
+                super::collision::standable_mask(),
+            )),
             gravity_scale: GravityScale(2.0),
             lateral_damping: LateralDamping(5.0),
         }
     }
-}
-
-#[derive(PhysicsLayer, Default, Clone, Copy, Debug, Reflect)]
-pub enum CollisionLayer {
-    #[default]
-    Character,
-    Vehicle,
-    Terrain,
-    AreaTransition,
-    Item,
 }
 
 /// Marker component for pipeline convenience, will be removed on the first frame and will insert a
