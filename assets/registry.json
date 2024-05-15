@@ -2682,6 +2682,30 @@
       "type": "object",
       "typeInfo": "Value"
     },
+    "bevy_egui::EguiSettings": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": false,
+      "properties": {
+        "default_open_url_target": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<alloc::string::String>"
+          }
+        },
+        "scale_factor": {
+          "type": {
+            "$ref": "#/$defs/f32"
+          }
+        }
+      },
+      "required": [
+        "scale_factor"
+      ],
+      "short_name": "EguiSettings",
+      "title": "bevy_egui::EguiSettings",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "bevy_gizmos::aabb::AabbGizmoConfigGroup": {
       "additionalProperties": false,
       "isComponent": false,
@@ -2746,6 +2770,17 @@
       ],
       "short_name": "GizmoConfig",
       "title": "bevy_gizmos::config::GizmoConfig",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "bevy_gizmos::config::GizmoConfigStore": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": true,
+      "properties": {},
+      "required": [],
+      "short_name": "GizmoConfigStore",
+      "title": "bevy_gizmos::config::GizmoConfigStore",
       "type": "object",
       "typeInfo": "Struct"
     },
@@ -8410,6 +8445,43 @@
       "type": "object",
       "typeInfo": "Struct"
     },
+    "bevy_time::virt::Virtual": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": false,
+      "properties": {
+        "effective_speed": {
+          "type": {
+            "$ref": "#/$defs/f64"
+          }
+        },
+        "max_delta": {
+          "type": {
+            "$ref": "#/$defs/bevy_utils::Duration"
+          }
+        },
+        "paused": {
+          "type": {
+            "$ref": "#/$defs/bool"
+          }
+        },
+        "relative_speed": {
+          "type": {
+            "$ref": "#/$defs/f64"
+          }
+        }
+      },
+      "required": [
+        "max_delta",
+        "paused",
+        "relative_speed",
+        "effective_speed"
+      ],
+      "short_name": "Virtual",
+      "title": "bevy_time::virt::Virtual",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "bevy_transform::components::global_transform::GlobalTransform": {
       "isComponent": true,
       "isResource": false,
@@ -11227,6 +11299,145 @@
       "type": "object",
       "typeInfo": "Struct"
     },
+    "bevy_xpbd_3d::plugins::debug::configuration::DebugRender": {
+      "additionalProperties": false,
+      "isComponent": true,
+      "isResource": false,
+      "properties": {
+        "aabb_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "axis_lengths": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<glam::Vec3>"
+          }
+        },
+        "collider_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "hide_mesh": {
+          "type": {
+            "$ref": "#/$defs/bool"
+          }
+        },
+        "sleeping_color_multiplier": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<[f32; 4]>"
+          }
+        }
+      },
+      "required": [
+        "hide_mesh"
+      ],
+      "short_name": "DebugRender",
+      "title": "bevy_xpbd_3d::plugins::debug::configuration::DebugRender",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "bevy_xpbd_3d::plugins::debug::configuration::PhysicsGizmos": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": false,
+      "properties": {
+        "aabb_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "axis_lengths": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<glam::Vec3>"
+          }
+        },
+        "collider_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "contact_normal_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "contact_normal_scale": {
+          "type": {
+            "$ref": "#/$defs/bevy_xpbd_3d::plugins::debug::configuration::ContactGizmoScale"
+          }
+        },
+        "contact_point_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "hide_meshes": {
+          "type": {
+            "$ref": "#/$defs/bool"
+          }
+        },
+        "joint_anchor_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "joint_separation_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "raycast_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "raycast_normal_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "raycast_point_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "shapecast_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "shapecast_normal_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "shapecast_point_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "shapecast_shape_color": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_render::color::Color>"
+          }
+        },
+        "sleeping_color_multiplier": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<[f32; 4]>"
+          }
+        }
+      },
+      "required": [
+        "contact_normal_scale",
+        "hide_meshes"
+      ],
+      "short_name": "PhysicsGizmos",
+      "title": "bevy_xpbd_3d::plugins::debug::configuration::PhysicsGizmos",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
     "bevy_xpbd_3d::plugins::prepare::PrepareConfig": {
       "additionalProperties": false,
       "isComponent": false,
@@ -11387,6 +11598,14 @@
       "isResource": false,
       "short_name": "Range<f32>",
       "title": "core::ops::Range<f32>",
+      "type": "object",
+      "typeInfo": "Value"
+    },
+    "core::ops::Range<f64>": {
+      "isComponent": false,
+      "isResource": false,
+      "short_name": "Range<f64>",
+      "title": "core::ops::Range<f64>",
       "type": "object",
       "typeInfo": "Value"
     },
@@ -13305,6 +13524,36 @@
       "required": [],
       "short_name": "Animated",
       "title": "unnamed_rpg::animation::Animated",
+      "type": "object",
+      "typeInfo": "Struct"
+    },
+    "unnamed_rpg::camera::CameraData": {
+      "additionalProperties": false,
+      "isComponent": false,
+      "isResource": true,
+      "properties": {
+        "camera_id": {
+          "type": {
+            "$ref": "#/$defs/core::option::Option<bevy_ecs::entity::Entity>"
+          }
+        },
+        "camera_position": {
+          "type": {
+            "$ref": "#/$defs/glam::Vec3"
+          }
+        },
+        "camera_rotation": {
+          "type": {
+            "$ref": "#/$defs/glam::Quat"
+          }
+        }
+      },
+      "required": [
+        "camera_position",
+        "camera_rotation"
+      ],
+      "short_name": "CameraData",
+      "title": "unnamed_rpg::camera::CameraData",
       "type": "object",
       "typeInfo": "Struct"
     },

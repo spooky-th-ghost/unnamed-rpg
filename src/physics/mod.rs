@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+pub mod collision;
 pub mod systems;
 pub mod types;
 

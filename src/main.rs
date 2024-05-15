@@ -11,6 +11,7 @@ mod item;
 mod physics;
 mod player;
 mod types;
+mod ui;
 
 fn main() {
     let mut app = App::new();
@@ -27,6 +28,7 @@ fn main() {
         animation::AnimationPlugin,
         environment::EnvironmentPlugin,
         item::ItemPlugin,
+        ui::BaseUiPlugin,
     ))
     .insert_resource(AmbientLight {
         color: Color::WHITE,
@@ -93,6 +95,7 @@ fn setup(
             id: item::ItemId::Milkshake,
         },
         Sensor,
+        physics::collision::item_layers(),
     ));
 
     commands.spawn(DirectionalLightBundle {
@@ -128,5 +131,6 @@ fn post_load_spawn(mut commands: Commands) {
             ..default()
         },
         SpawnHere,
+        physics::collision::object_layers(),
     ));
 }
