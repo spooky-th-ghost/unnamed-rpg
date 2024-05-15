@@ -203,13 +203,15 @@ struct TraditionalCameraPlugin;
 impl Plugin for TraditionalCameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
+            PostUpdate,
             (
                 update_camera_desired_position,
-                position_camera.after(crate::physics::systems::lateral_movement),
+                position_camera,
                 rotate_camera,
                 adjust_offset,
             )
+                .after(bevy_xpbd_3d::PhysicsSet::Sync)
+                .before(bevy::transform::TransformSystem::TransformPropagate)
                 .run_if(in_state(GameState::Overworld)),
         );
     }

@@ -25,7 +25,7 @@ fn spawn_ui(
                     background_color: Color::NONE.into(),
                     style: Style {
                         position_type: PositionType::Absolute,
-                        top: Val::Percent(5.5),
+                        top: Val::Percent(8.0),
                         left: Val::Percent(9.0),
                         ..default()
                     },
