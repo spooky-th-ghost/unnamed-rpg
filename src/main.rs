@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_gltf_blueprints::*;
 use bevy_xpbd_3d::prelude::*;
+use player::Player;
 
 mod animation;
 mod assets;
