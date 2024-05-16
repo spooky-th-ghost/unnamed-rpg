@@ -50,7 +50,7 @@ pub struct Door;
 #[derive(Component, Reflect, Default)]
 #[reflect(Component)]
 pub struct Transition {
-    destination: TransitionDestination,
+    pub destination: TransitionDestination,
 }
 
 #[derive(Reflect)]

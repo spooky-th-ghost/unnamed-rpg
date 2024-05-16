@@ -65,7 +65,7 @@ pub struct PlayerStateTransitionEvent {
     pub current_state: PlayerState,
     pub new_state: PlayerState,
 }
-
+          
 #[derive(Resource, Default, Reflect)]
 #[reflect(Resource)]
 pub struct PlayerData {
@@ -289,7 +289,7 @@ fn handle_transitions(
 ) {
     // We know there is only one entity with the player component so we grab it with .get_single()
     // here
-    if let Ok((player_entity, mut player_transform)) = player_query.get_single() {
+    if let Ok((player_entity, mut player_transform)) = player_query.get_single_mut() {
         // Here we iterate through each collision this frame with our player entity
         for collision in collisions.collisions_with_entity(player_entity) {
             //The player could be entity1 or entity2 in the collision so this code just ensures we
@@ -302,6 +302,15 @@ fn handle_transitions(
 
             // 1. Check the transitions_query to find what if we hit an object with a `Transition`
             //    component
+            if let Ok(transition) = transitions_query.get(transition_entity)
+            {
+                match transition.destination
+                    {
+                        TransitionDestination::Location(transitionVector) => player_transform.translation = transitionVector,
+                        
+                        _ => ()
+                    }
+            }
             // 2. If we did, we need to `match` against transition.destination what type of transition we should do (Location or Scene, just focus on Location for now
             // 3. Once we have the target location, set `player_transform.translation` to match it)
         }
