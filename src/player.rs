@@ -65,7 +65,7 @@ pub struct PlayerStateTransitionEvent {
     pub current_state: PlayerState,
     pub new_state: PlayerState,
 }
-          
+
 #[derive(Resource, Default, Reflect)]
 #[reflect(Resource)]
 pub struct PlayerData {
@@ -302,14 +302,14 @@ fn handle_transitions(
 
             // 1. Check the transitions_query to find what if we hit an object with a `Transition`
             //    component
-            if let Ok(transition) = transitions_query.get(transition_entity)
-            {
-                match transition.destination
-                    {
-                        TransitionDestination::Location(transitionVector) => player_transform.translation = transitionVector,
-                        
-                        _ => ()
+            if let Ok(transition) = transitions_query.get(transition_entity) {
+                match transition.destination {
+                    TransitionDestination::Location(transition_vector) => {
+                        player_transform.translation = transitionVector
                     }
+
+                    _ => (),
+                }
             }
             // 2. If we did, we need to `match` against transition.destination what type of transition we should do (Location or Scene, just focus on Location for now
             // 3. Once we have the target location, set `player_transform.translation` to match it)
