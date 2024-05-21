@@ -1,9 +1,27 @@
 ({
 		"idle": File(
-			path: "models/uli.glb#Animation1"
+			path: "models/uli.glb#Animation2"
 		),
 		"run": File(
-			path: "models/uli.glb#Animation2"
+			path: "models/uli.glb#Animation7"
+		),
+		"jump": File(
+			path: "models/uli.glb#Animation3"
+		),
+		"rising": File(
+			path: "models/uli.glb#Animation6"
+		),
+		"long-jump": File(
+			path: "models/uli.glb#Animation4"
+		),
+		"long-jump-held": File(
+			path: "models/uli.glb#Animation5"
+		),
+		"dive": File(
+			path: "models/uli.glb#Animation0"
+		),
+		"dive-held": File(
+			path: "models/uli.glb#Animation1"
 		),
 
 })

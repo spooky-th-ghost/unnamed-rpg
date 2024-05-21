@@ -76,9 +76,57 @@ pub struct EnvironmentalAnimationCache {
 #[derive(Resource, AssetCollection)]
 pub struct PlayerAnimationCache {
     #[asset(key = "idle")]
-    pub idle: Handle<AnimationClip>,
+    idle: Handle<AnimationClip>,
     #[asset(key = "run")]
-    pub run: Handle<AnimationClip>,
+    run: Handle<AnimationClip>,
+    #[asset(key = "jump")]
+    jump: Handle<AnimationClip>,
+    #[asset(key = "rising")]
+    rising: Handle<AnimationClip>,
+    #[asset(key = "long-jump")]
+    long_jump: Handle<AnimationClip>,
+    #[asset(key = "long-jump-held")]
+    long_jump_held: Handle<AnimationClip>,
+    #[asset(key = "dive")]
+    dive: Handle<AnimationClip>,
+    #[asset(key = "dive-held")]
+    dive_held: Handle<AnimationClip>,
+}
+
+type Clip = Handle<AnimationClip>;
+
+impl PlayerAnimationCache {
+    pub fn idle(&self) -> Clip {
+        self.idle.clone_weak()
+    }
+
+    pub fn run(&self) -> Clip {
+        self.run.clone_weak()
+    }
+
+    pub fn jump(&self) -> Clip {
+        self.jump.clone_weak()
+    }
+
+    pub fn rising(&self) -> Clip {
+        self.rising.clone_weak()
+    }
+
+    pub fn long_jump(&self) -> Clip {
+        self.long_jump.clone_weak()
+    }
+
+    pub fn long_jump_held(&self) -> Clip {
+        self.long_jump_held.clone_weak()
+    }
+
+    pub fn dive(&self) -> Clip {
+        self.dive.clone_weak()
+    }
+
+    pub fn dive_held(&self) -> Clip {
+        self.dive_held.clone_weak()
+    }
 }
 
 fn insert_mesh_colliders(

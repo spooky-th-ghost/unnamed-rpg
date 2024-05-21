@@ -6,7 +6,8 @@ pub struct PhysicsTypesPlugin;
 
 impl Plugin for PhysicsTypesPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<MoveSpeed>()
+        app.add_event::<LandingEvent>()
+            .register_type::<MoveSpeed>()
             .register_type::<MoveDirection>()
             .register_type::<Character>()
             .register_type::<Grounded>()
@@ -282,3 +283,6 @@ pub struct CharacterPhysicsSettings {
     pub collider_height: f32,
     pub collider_radius: f32,
 }
+
+#[derive(Event)]
+pub struct LandingEvent(pub Entity);

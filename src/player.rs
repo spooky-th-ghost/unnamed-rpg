@@ -1,70 +1,137 @@
-use crate::animation::{Animated, AnimationInit, AnimationMap, AnimationTransitionEvent};
+use crate::animation::{
+    Animated, AnimationInit, AnimationMap, AnimationSet, AnimationTransitionEvent,
+};
 use crate::assets::{CharacterCache, PlayerAnimationCache};
 use crate::camera::CameraData;
 use crate::environment::{Transition, TransitionDestination};
 use crate::input::{InputBuffer, InputListenerBundle, PlayerAction};
 use crate::physics::types::{
-    Character, CharacterBundle, CoyoteTime, Grounded, Jumping, Momentum, MoveDirection, MoveSpeed,
-    Regrab,
+    Character, CharacterBundle, CoyoteTime, Grounded, Jumping, LandingEvent, Momentum,
+    MoveDirection, MoveSpeed, Regrab,
 };
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 use leafwing_input_manager::action_state::ActionState;
-use std::time::Duration;
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PlayerData::new(200.0))
+            .add_event::<PlayerStateTransitionEvent>()
             .register_type::<PlayerData>()
             .add_systems(OnEnter(GameState::Overworld), spawn_overworld_player)
             .add_systems(
                 Update,
                 (
-                    set_player_direction,
-                    play_idle_animation,
-                    transition_player_state,
-                    update_player_data,
-                    jump,
-                    handle_regrab,
-                    handle_jumping,
-                    handle_transitions,
+                    (
+                        set_player_direction,
+                        play_idle_animation,
+                        update_player_data,
+                        jump,
+                        land,
+                        handle_transitions,
+                        handle_regrab,
+                        handle_jumping,
+                        handle_player_landing_event,
+                    ),
+                    (determine_player_state, handle_player_animation_transitions).chain(),
                 )
-                    .run_if(in_state(GameState::Overworld)),
+                    .chain()
+                    .run_if(in_state(GameState::Overworld))
+                    .before(AnimationSet),
             );
     }
 }
 
+#[derive(Component)]
+pub struct LongJump;
+
+#[derive(Component)]
+pub struct Diving;
+
 #[derive(Default, Clone, Copy, PartialEq, Eq)]
 pub enum PlayerState {
     Diving,
-    BellySliding,
     #[default]
     Idle,
-    Walking,
     Running,
     LongJumping,
     Rising,
-    Freefall,
-    Walljumping,
-    Carrying,
-    ButtSliding,
-    Sliding,
 }
 
-#[derive(Component, Default, Clone, Copy, Deref)]
-pub struct Player {
-    #[deref]
-    pub state: PlayerState,
+#[derive(Component, Default)]
+pub struct PlayerStateHandler {
+    pub current_state: PlayerState,
 }
+
+fn handle_player_animation_transitions(
+    animation_cache: Res<PlayerAnimationCache>,
+    mut animation_transitions: EventWriter<AnimationTransitionEvent>,
+    mut state_change_events: EventReader<PlayerStateTransitionEvent>,
+    mut player_query: Query<(Entity, &mut PlayerStateHandler)>,
+) {
+    for event in state_change_events.read() {
+        for (entity, mut player_state) in &mut player_query {
+            if event.0 != player_state.current_state {
+                use PlayerState::*;
+                match event.0 {
+                    LongJumping => {
+                        player_state.current_state = LongJumping;
+                        animation_transitions.send(AnimationTransitionEvent::double(
+                            entity,
+                            animation_cache.long_jump(),
+                            0.0,
+                            animation_cache.long_jump_held(),
+                        ));
+                    }
+                    Rising => {
+                        player_state.current_state = Rising;
+                        animation_transitions.send(AnimationTransitionEvent::double(
+                            entity,
+                            animation_cache.jump(),
+                            0.0,
+                            animation_cache.rising(),
+                        ));
+                    }
+                    Idle => {
+                        player_state.current_state = Idle;
+                        animation_transitions.send(AnimationTransitionEvent::single(
+                            entity,
+                            animation_cache.idle(),
+                            0.0,
+                        ));
+                    }
+                    Running => {
+                        player_state.current_state = Running;
+                        animation_transitions.send(AnimationTransitionEvent::single(
+                            entity,
+                            animation_cache.run(),
+                            0.0,
+                        ));
+                    }
+                    Diving => {
+                        player_state.current_state = Diving;
+                        animation_transitions.send(AnimationTransitionEvent::double(
+                            entity,
+                            animation_cache.dive(),
+                            0.0,
+                            animation_cache.dive_held(),
+                        ));
+                    }
+                }
+                player_state.current_state = event.0;
+            }
+        }
+    }
+}
+
+#[derive(Component, Default, Clone, Copy)]
+pub struct Player;
 
 #[derive(Event)]
-pub struct PlayerStateTransitionEvent {
-    pub current_state: PlayerState,
-    pub new_state: PlayerState,
-}
+pub struct PlayerStateTransitionEvent(pub PlayerState);
 
 #[derive(Resource, Default, Reflect)]
 #[reflect(Resource)]
@@ -100,9 +167,8 @@ fn spawn_overworld_player(mut commands: Commands, characters: Res<CharacterCache
             scene: characters.uli.clone_weak(),
             ..default()
         },
-        Player {
-            state: PlayerState::Idle,
-        },
+        Player,
+        PlayerStateHandler::default(),
         CharacterBundle::default(),
         InputBuffer::default(),
         InputListenerBundle::input_map(),
@@ -176,32 +242,60 @@ fn update_player_data(
     }
 }
 
-fn transition_player_state(
+fn handle_player_landing_event(
+    mut landing_events: EventReader<LandingEvent>,
     mut animation_transitions: EventWriter<AnimationTransitionEvent>,
     animation_cache: Res<PlayerAnimationCache>,
-    mut player_query: Query<(Entity, &mut Player, &MoveDirection, &ShapeHits)>,
+    player_query: Query<Entity, With<Player>>,
 ) {
-    for (entity, mut player, direction, ground_hits) in &mut player_query {
-        if !ground_hits.is_empty() {
+    for event in landing_events.read() {
+        if let Ok(player_entity) = player_query.get(event.0) {
+            animation_transitions.send(AnimationTransitionEvent::single(
+                player_entity,
+                animation_cache.idle(),
+                0.0,
+            ));
+        }
+    }
+}
+
+fn determine_player_state(
+    mut player_transitions: EventWriter<PlayerStateTransitionEvent>,
+    player_query: Query<
+        (
+            &MoveDirection,
+            &ShapeHits,
+            Has<Jumping>,
+            Has<LongJump>,
+            Has<Diving>,
+        ),
+        With<Player>,
+    >,
+) {
+    use PlayerState::*;
+    for (direction, ground_hits, is_jumping, is_long_jumping, is_diving) in &player_query {
+        if !ground_hits.is_empty() && !is_jumping && !is_long_jumping {
             if direction.is_any() {
-                if player.state != PlayerState::Running {
-                    player.state = PlayerState::Running;
-                    animation_transitions.send(AnimationTransitionEvent {
-                        entity,
-                        clip: animation_cache.run.clone_weak(),
-                        transition: Duration::from_secs_f32(0.2),
-                    });
-                }
+                player_transitions.send(PlayerStateTransitionEvent(Running));
             } else {
-                if player.state != PlayerState::Idle {
-                    player.state = PlayerState::Idle;
-                    animation_transitions.send(AnimationTransitionEvent {
-                        entity,
-                        clip: animation_cache.idle.clone_weak(),
-                        transition: Duration::from_secs_f32(0.3),
-                    });
-                }
+                player_transitions.send(PlayerStateTransitionEvent(Idle));
             }
+        }
+
+        if ground_hits.is_empty() && !is_long_jumping {
+            if is_jumping {
+                player_transitions.send(PlayerStateTransitionEvent(Rising));
+            } else {
+                player_transitions.send(PlayerStateTransitionEvent(Diving));
+            }
+        }
+
+        if is_long_jumping {
+            player_transitions.send(PlayerStateTransitionEvent(LongJumping));
+        }
+
+        if is_diving {
+            player_transitions.send(PlayerStateTransitionEvent(Diving));
         }
     }
 }
@@ -214,6 +308,24 @@ fn handle_jumping(
         if input_buffer.released(PlayerAction::Jump) || velocity.y <= 0.0 {
             commands.entity(entity).remove::<Jumping>();
             velocity.y = 0.0;
+        }
+    }
+}
+
+fn land(
+    mut commands: Commands,
+    player_query: Query<Entity, With<Player>>,
+    mut landing_events: EventReader<LandingEvent>,
+) {
+    if let Ok(player_entity) = player_query.get_single() {
+        for event in landing_events.read() {
+            if event.0 == player_entity {
+                commands
+                    .entity(player_entity)
+                    .remove::<Jumping>()
+                    .remove::<LongJump>()
+                    .remove::<Diving>();
+            }
         }
     }
 }
@@ -235,6 +347,7 @@ fn jump(
         if (has_grounded || has_coyote_time) && input.just_pressed(PlayerAction::Jump) {
             velocity.y = character.jump_strength;
             commands.entity(entity).insert(Jumping);
+
             if has_coyote_time {
                 commands.entity(entity).remove::<CoyoteTime>();
             }
@@ -305,7 +418,7 @@ fn handle_transitions(
             if let Ok(transition) = transitions_query.get(transition_entity) {
                 match transition.destination {
                     TransitionDestination::Location(transition_vector) => {
-                        player_transform.translation = transitionVector
+                        player_transform.translation = transition_vector
                     }
 
                     _ => (),

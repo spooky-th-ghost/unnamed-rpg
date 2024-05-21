@@ -81,6 +81,7 @@ fn setup(
         },
         RigidBody::Static,
         Collider::cuboid(50.0, 0.5, 50.0),
+        physics::collision::CollisionLayer::terrain_layers(),
     ));
 
     commands.spawn((

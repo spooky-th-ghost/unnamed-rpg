@@ -76,6 +76,7 @@ fn rotate_to_direction(
 
 fn floating_capsule(
     mut commands: Commands,
+    mut landing_events: EventWriter<LandingEvent>,
     mut character_query: Query<(
         Entity,
         &mut ExternalForce,
@@ -116,6 +117,7 @@ fn floating_capsule(
             force.set_force(applied_force);
             if !has_grounded && !has_jumping {
                 commands.entity(entity).insert(Grounded);
+                landing_events.send(LandingEvent(entity));
             }
         } else {
             if has_grounded {
