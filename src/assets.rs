@@ -150,4 +150,65 @@ fn insert_mesh_colliders(
     }
 }
 
-// This is a test
+mod victimless_asset {
+    use bevy::prelude::*;
+    use bevy_asset_loader::prelude::*;
+    use bevy_gltf_blueprints::{BlueprintsPlugin, GltfFormat};
+    use bevy_registry_export::*;
+    use std::marker::PhantomData;
+
+    pub struct VictimlessAssetPlugin<T, B, A>
+    where
+        T: States + Clone + Copy + Default + Eq + PartialEq + std::hash::Hash + std::fmt::Debug,
+        B: Resource + AssetCollection,
+        A: Resource + AssetCollection,
+    {
+        _blueprint_cache: PhantomData<B>,
+        _animation_cache: PhantomData<A>,
+        loading_state: T,
+        post_loading_state: T,
+    }
+
+    impl<T, B, A> VictimlessAssetPlugin<T, B, A>
+    where
+        T: States + Clone + Copy + Default + Eq + PartialEq + std::hash::Hash + std::fmt::Debug,
+        B: Resource + AssetCollection,
+        A: Resource + AssetCollection,
+    {
+        pub fn new(loading_state: T, post_loading_state: T) -> Self {
+            Self {
+                _blueprint_cache: PhantomData,
+                _animation_cache: PhantomData,
+                loading_state,
+                post_loading_state,
+            }
+        }
+    }
+
+    impl<T, B, A> Plugin for VictimlessAssetPlugin<T, B, A>
+    where
+        T: States + Clone + Copy + Default + Eq + PartialEq + std::hash::Hash + std::fmt::Debug,
+        B: Resource + AssetCollection,
+        A: Resource + AssetCollection,
+    {
+        fn build(&self, app: &mut App) {
+            app.add_plugins((
+                ExportRegistryPlugin::default(),
+                BlueprintsPlugin {
+                    library_folder: "scenes/library".into(),
+                    format: GltfFormat::GLB,
+                    legacy_mode: false,
+                    ..Default::default()
+                },
+            ))
+            .add_loading_state(
+                LoadingState::new(self.loading_state)
+                    .with_dynamic_assets_file::<StandardDynamicAssetCollection>(
+                        "manifests/animations.assets.ron",
+                    )
+                    .load_collection::<B>()
+                    .load_collection::<A>(),
+            );
+        }
+    }
+}
